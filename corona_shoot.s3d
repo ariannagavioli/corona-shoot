@@ -1,0 +1,132 @@
+/* Include s3d symbols */
+#include <Script3d.h>
+#include <Camera.s3d.h>
+
+/* Set global scene parameters */
+SET SCENE_FOV  = 60;
+SET SCENE_NEAR = 0.5;
+SET SCENE_FAR  = 1000;
+
+
+// TODO: put your global variables here
+
+
+/* Camera globals */
+var CamPos = [0.0, 5.0, 30.0]; 	// camera position
+
+/* Light globals */
+var Light0;
+var PosL = [0.0, 10.0, 10.0];	// default light position
+
+
+/* Function declarations */
+function CameraMoveMouse();
+function DrawGrid(col, size);
+
+
+
+function OnDownload()
+{
+	// TODO: download your resources here
+	// E.g.: FileDownload("resource.ext");
+}
+
+
+
+function OnInit(params)
+{
+	/* initialize camera */
+	CameraGetCurrent().SetPosition(CamPos);
+
+	/* initialize light */
+	Light0 = CVmLight();
+	Light0.SetPosition(PosL);
+	Light0.SetDiffuse(1, 1, 1);
+	Light0.Enable();	
+
+	// TODO: put your initialization code here
+}
+
+
+
+function OnFrame()
+{
+	/* manage camera */
+	CameraMoveMouse();
+
+	SceneBegin();
+
+	DrawGrid([0.5, 0.5, 0.5], 100);
+
+	// TODO: put your drawing code here
+
+	SceneEnd();
+}
+
+
+
+function DownloadReady(RequestID)
+{
+	// TODO
+}
+
+
+
+function OnTimer()
+{
+	// TODO:
+}
+
+
+function OnEvent(eventID, wparam, lparam){
+	// TODO: put your events handling code here
+}
+
+function OnError(){
+	// TODO: put your errors handling code here
+}
+
+
+function OnExit()
+{
+	// TODO: put your cleanup code here
+}
+
+
+
+// Camera manager (using mouse)
+function CameraMoveMouse()
+{	
+
+	CameraMoveMouse_MBL_LC();
+
+}
+
+
+
+function DrawGrid(col, size)
+{
+	/* let's not mess up current OpenGL status */
+	glPushAttrib(GL_LIGHTING_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+	
+	glLineWidth(1);
+	glDisable(GL_LIGHTING);
+	glColor(col);
+	var max = size / 2.0;
+	var min = -max;	
+	var step = size / 10.0;
+	
+	glBegin(GL_LINES);
+		for (var i = min; i <= max; i += step)
+		{
+			glVertex(i, 0, max);
+			glVertex(i, 0, min);
+			
+			glVertex(max, 0, i);
+			glVertex(min, 0, i);
+		}
+	glEnd();
+	
+	/* polite restoration of previous OpenGL status */
+	glPopAttrib();
+}
