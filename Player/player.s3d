@@ -20,6 +20,7 @@ class Player{
 	var step;
 	
 	var is_moving;
+	var is_jumping;
 	
 	var current_frame;
 	
