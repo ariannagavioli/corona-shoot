@@ -1,6 +1,8 @@
 /* Include s3d symbols */
 #include <Script3d.h>
 #include <Camera.s3d.h>
+#include <./Level/level.s3d>
+#include <./Player/player.s3d>
 
 /* Set global scene parameters */
 SET SCENE_FOV  = 60;
@@ -23,12 +25,14 @@ var PosL = [0.0, 10.0, 10.0];	// default light position
 function CameraMoveMouse();
 function DrawGrid(col, size);
 
-
+/* GLOBAL VARIABLES */
+var curr_player;
+var curr_level;
 
 function OnDownload()
 {
-	// TODO: download your resources here
-	// E.g.: FileDownload("resource.ext");
+	// Download resources here;
+	FileDownload("XVRResources.zip");
 }
 
 
@@ -44,7 +48,15 @@ function OnInit(params)
 	Light0.SetDiffuse(1, 1, 1);
 	Light0.Enable();	
 
-	// TODO: put your initialization code here
+	// Our initializations
+	
+	curr_level = level();
+	curr_level.init("level.txt");
+	
+	curr_player = player();
+	curr_player.init();
+	curr_player.setPosition([2,0,2]);
+	
 }
 
 
@@ -58,7 +70,10 @@ function OnFrame()
 
 	DrawGrid([0.5, 0.5, 0.5], 100);
 
-	// TODO: put your drawing code here
+	// Our drawings
+	
+	curr_level.draw();
+	curr_player.draw();
 
 	SceneEnd();
 }
