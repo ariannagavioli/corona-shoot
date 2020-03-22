@@ -25,11 +25,12 @@ function level::init(level_textfile){
 	wall_mesh = CVmNewMesh(VRP_BOX);
 	wall_mesh.SetMaterial(wall_material);
 	wall_mesh.Scale(1,3,1);
+	
 	var f = LoadFile(level_textfile);
-	trace(f);
+	
 	var num_rows = len(f);
 	var num_columns = len(f[0]);
-	trace(num_rows,num_columns);
+	
 	for(var i=0; i< num_rows; i++)
 	{
 		for(var j=0; j< num_columns; j++)
