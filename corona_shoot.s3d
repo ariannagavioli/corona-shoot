@@ -70,6 +70,8 @@ function OnFrame()
 
 	DrawGrid([0.5, 0.5, 0.5], 100);
 
+	curr_player.update();
+
 	// Our drawings
 	
 	curr_level.draw();
