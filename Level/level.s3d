@@ -2,6 +2,7 @@
 class level {
 	/* Walls */
 	var wall_mesh;
+	var lower_wall_mesh;
 	var wall_obj_array;
 	var wall_material;
 	var wall_texture;
@@ -26,8 +27,12 @@ function level::init(level_textfile){
 	wall_mesh.SetMaterial(wall_material);
 	wall_mesh.Scale(1,3,1);
 	
-	var f = LoadFile(level_textfile);
+	lower_wall_mesh = CVmNewMesh(VRP_BOX);
+	lower_wall_mesh.SetMaterial(wall_material);
+	lower_wall_mesh.Scale(1,0.2,1);
 	
+	var f = LoadFile(level_textfile);
+
 	var num_rows = len(f);
 	var num_columns = len(f[0]);
 	
@@ -38,6 +43,12 @@ function level::init(level_textfile){
 			if (f[i][j] == "*")
 			{
 				var t = CVmObj(wall_mesh);
+				t.SetPosition(j,0,i);
+				aadd(wall_obj_array,t);
+			}
+			else if(f[i][j] == "+")
+			{
+				var t = CVmObj(lower_wall_mesh);
 				t.SetPosition(j,0,i);
 				aadd(wall_obj_array,t);
 			}			
