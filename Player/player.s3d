@@ -28,8 +28,8 @@ function player::init(){
 	weapon_mesh = CVmNewMesh("rocketl.AAM");
 	
 	var scale_measure = lower_mesh.normalize(1);
-	upper_mesh.normalize(scale_measure);
-	weapon_mesh.normalize(scale_measure);
+	upper_mesh.scale(scale_measure);
+	weapon_mesh.scale(scale_measure);
 	
 	lower_object = CVmObj(lower_mesh);
 	upper_object = CVmObj(upper_mesh);
