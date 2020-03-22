@@ -1,0 +1,64 @@
+/* Level class */
+class level {
+	/* Walls */
+	var wall_mesh;
+	var wall_obj_array;
+	var wall_material;
+	var wall_texture;
+	
+	/* Floor */
+	var floor_mesh;
+	var floor_material;
+	var floor_texture;
+	
+	init(level_textfile);
+	draw();
+};
+
+function level::init(level_textfile){
+	wall_texture = CVmTexture("Mattoni04.png");
+	wall_material = CVmMaterial();
+	wall_material.SetTexture(wall_texture);
+	wall_material.ChangeTextureParams(VR_V_TILING, 3);
+	
+	wall_obj_array = array(0);
+	wall_mesh = CVmNewMesh(VRP_BOX);
+	wall_mesh.SetMaterial(wall_material);
+	wall_mesh.Scale(1,3,1);
+	var f = LoadFile(level_textfile);
+	trace(f);
+	var num_rows = len(f);
+	var num_columns = len(f[0]);
+	trace(num_rows,num_columns);
+	for(var i=0; i< num_rows; i++)
+	{
+		for(var j=0; j< num_columns; j++)
+		{
+			if (f[i][j] == "*")
+			{
+				var t = CVmObj(wall_mesh);
+				t.SetPosition(j,0,i);
+				aadd(wall_obj_array,t);
+			}			
+		}
+	}	
+	
+	floor_material = CVmMaterial();
+	floor_texture  = CVMtexture("grass.jpg");
+	floor_material.SetTexture(floor_texture);
+	floor_material.ChangeTextureParams(VR_U_TILING,4);
+	floor_material.ChangeTextureParams(VR_V_TILING,4);
+	
+	
+	floor_mesh = CVmNewMesh(VRP_BOX);
+	floor_mesh.scale(num_columns,1,num_rows);
+	floor_mesh.translate(0,-1,0);
+	floor_mesh.SetMaterial(floor_material);
+	floor_mesh.ModulateMaterials(0,1,0,1);	
+}
+
+function level::draw(){
+	foreach (var t in wall_obj_array)
+		t.Draw();
+	floor_mesh.draw();
+}
