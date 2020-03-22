@@ -1,0 +1,72 @@
+/* Player class */
+class Player{
+	
+	var upper_mesh;
+	var upper_object;
+	
+	var lower_mesh;
+	var lower_object;
+	
+	var weapon_mesh;
+	var weapon_object;
+	
+	var player_object;
+	var position;
+	var angle;
+	var direction;
+	var step;
+	
+	init();
+	draw();
+	setPosition(pos);
+	update();
+};
+
+function player::init(){
+	lower_mesh = CVmNewMesh("swat_lower.AAM");
+	upper_mesh = CVmNewMesh("swat_upper.AAM");
+	weapon_mesh = CVmNewMesh("rocketl.AAM");
+	
+	var scale_measure = lower_mesh.normalize(1);
+	upper_mesh.normalize(scale_measure);
+	weapon_mesh.normalize(scale_measure);
+	
+	lower_object = CVmObj(lower_mesh);
+	upper_object = CVmObj(upper_mesh);
+	weapon_object = CVmObj(weapon_mesh);
+	
+	player_object = CVmObj();
+	
+	player_object.addchild(lower_object);
+	player_object.addchild(upper_object);
+	player_object.addchild(weapon_object);
+	
+	angle = 0;
+	direction = [0,0,1];
+	step = 0.1;
+}
+
+function player::setPosition(pos){
+	position = pos;
+	player_object.setPosition(position);
+}
+
+function player::update()
+{
+	if (keypressed(VK_UP))
+		position += (direction*step);
+	else if (keypressed(VK_DOWN))
+		position -= (direction*step);
+	if (keypressed(VK_RIGHT))
+		angle -= 0.01;
+    else if(keypressed(VK_LEFT))
+        angle += 0.01;
+    
+    direction = [sin(angle), 0, cos(angle)];
+    setposition(position);		
+}
+
+function player::draw()
+{
+	player_object.draw(VR_FRAMENUMBER,0);
+}
