@@ -29,7 +29,7 @@ function level::init(level_textfile){
 	
 	lower_wall_mesh = CVmNewMesh(VRP_BOX);
 	lower_wall_mesh.SetMaterial(wall_material);
-	lower_wall_mesh.Scale(1,0.2,1);
+	lower_wall_mesh.Scale(1,1,1);
 	
 	var f = LoadFile(level_textfile);
 
