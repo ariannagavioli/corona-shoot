@@ -16,17 +16,20 @@ class Player{
 	var player_object;
 	var position;
 	var angle;
-	var direction;
-	var step;
+	//var direction;
+	var step_velocity;
+	var current_velocity;
+	var step_angle;
 	
-	var is_moving;
 	var is_jumping;
 	
 	var current_frame;
 	
+	var life_points;
+	
 	init();
 	draw();
-	setPosition(pos);
+	setPosition(pos,ang);
 	update();
 };
 
@@ -45,56 +48,62 @@ function player::init(){
 	
 	player_object = CVmObj();
 	
-	player_object.addchild(lower_object);
-	player_object.addchild(upper_object);
-	player_object.addchild(weapon_object);
+	player_object.addChild(lower_object);
+	player_object.addChild(upper_object);
+	player_object.addChild(weapon_object);
 	
 	angle = 0;
-	direction = [0,0,1];
-	step = 0.1;
-	
-	is_moving = 0;
+	position = [0,0,0];		//[x,y,z]
+	step_velocity = 0.1;
+	step_angle = 1.0;	
+	current_velocity = 0;
 	current_frame = 0;
+	
+	life_points = 100;
+	
+	setPosition(position,angle);
 }
 
-function player::setPosition(pos){
+function player::setPosition(pos,ang){
 	position = pos;
 	player_object.setPosition(position);
+	player_object.setRotation(ang,[0,1,0]);	//rotate the player around y-axis
 }
 
 function player::update()
 {
+	current_velocity = 0;
+	
 	if (keypressed(VK_UP))
-	{
-		position += (direction*step);
-		is_moving = 1;
-	}
+		current_velocity = step_velocity;
 	else if (keypressed(VK_DOWN))
+		current_velocity = -step_velocity;	
+	
+	else if (keypressed(VK_RIGHT))
 	{
-		position -= (direction*step);
-		is_moving = 1;	
+		angle = angle - step_angle;
+		angle = angle % 360;
 	}
-	else
-		is_moving = 0;
+    else if(keypressed(VK_LEFT)){
+        angle = angle + step_angle;
+    	angle = angle % 360;  
+    }
 		
-	if(is_moving > 0){
+	if(current_velocity != 0){
 		current_frame += 1;
 		current_frame = current_frame % (END_WALK - START_WALK);
 	}
-		
 	
-	if (keypressed(VK_RIGHT))
-		angle -= 0.01;
-    else if(keypressed(VK_LEFT))
-        angle += 0.01;
     
-    direction = [sin(angle), 0, cos(angle)];
-    setPosition(position);		
+    position[0] += current_velocity * sin(angle / 180.0 * PI);	// x-component
+    position[2] += current_velocity * cos(angle / 180.0 * PI);	// z-component
+	
+	setPosition(position, angle);		
 }
 
 function player::draw()
 {
-	if(is_moving > 0)
+	if(current_velocity != 0)
 		player_object.draw(VR_FRAMENUMBER,START_WALK + current_frame);
 	else
 		player_object.draw(VR_FRAMENUMBER,0);
