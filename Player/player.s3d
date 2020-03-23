@@ -79,7 +79,7 @@ function player::update()
 	else if (keypressed(VK_DOWN))
 		current_velocity = -step_velocity;	
 	
-	else if (keypressed(VK_RIGHT))
+	if (keypressed(VK_RIGHT))
 	{
 		angle = angle - step_angle;
 		angle = angle % 360;
