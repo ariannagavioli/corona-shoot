@@ -1,5 +1,6 @@
 #define START_WALK	 	16
 #define END_WALK 		48
+#define GRAVITY			9.8
 
 /* Player class */
 class Player{
@@ -14,22 +15,24 @@ class Player{
 	var weapon_object;
 	
 	var player_object;
-	var position;
-	var angle;
-	//var direction;
-	var step_velocity;
-	var current_velocity;
-	var step_angle;
+	
+	var position;				//[x,y,z] point in space of the player
+	var angle;					//determines the direction the player is facing
+	var step_velocity;			//how much player moves in one frame over the plane x-z (absolute value)
+	var current_velocity;		//current player velocity (is signed, x-z)
+	var step_angle;				//delta angle of one frame: how much rotation can be done in one frame
+	var jumping_velocity;		//velocity over the y-axis
 	
 	var is_jumping;
 	
-	var current_frame;
+	var current_frame;			//current frame of the mesh
 	
 	var life_points;
 	
 	init();
 	draw();
 	setPosition(pos,ang);
+	update_jump();
 	update();
 };
 
@@ -54,10 +57,14 @@ function player::init(){
 	
 	angle = 0;
 	position = [0,0,0];		//[x,y,z]
-	step_velocity = 0.1;
+	step_velocity = 0.08;
 	step_angle = 1.0;	
 	current_velocity = 0;
 	current_frame = 0;
+	
+	/* Player is not jumping */
+	jumping_velocity = 0;
+	is_jumping = false;
 	
 	life_points = 100;
 	
@@ -70,6 +77,20 @@ function player::setPosition(pos,ang){
 	player_object.setRotation(ang,[0,1,0]);	//rotate the player around y-axis
 }
 
+function player::update_jump(){
+	
+	var delta = 0.03;
+		
+	position[1] += jumping_velocity * delta;
+	position[1] -= GRAVITY * delta * delta;
+	jumping_velocity -= GRAVITY * delta;
+	
+	if(position[1] <= 0){
+		is_jumping = false;
+		position[1] = 0;
+	}
+}
+
 function player::update()
 {
 	current_velocity = 0;
@@ -79,14 +100,24 @@ function player::update()
 	else if (keypressed(VK_DOWN))
 		current_velocity = -step_velocity;	
 	
-	if (keypressed(VK_RIGHT))
-	{
-		angle = angle - step_angle;
+	if (keypressed(VK_RIGHT)){
+		angle -= step_angle;
 		angle = angle % 360;
 	}
     else if(keypressed(VK_LEFT)){
-        angle = angle + step_angle;
+        angle += step_angle;
     	angle = angle % 360;  
+    }
+	
+    /* Jump, only if not already jumping*/
+    if( (keypressed(VK_SPACE) && !is_jumping)){
+    	is_jumping = true;
+    	jumping_velocity = 5.0;
+    }
+    
+    /* If player is jumping, update jump dynamics*/
+    if(is_jumping){
+    	update_jump();
     }
 		
 	if(current_velocity != 0){
@@ -97,6 +128,9 @@ function player::update()
     
     position[0] += current_velocity * sin(angle / 180.0 * PI);	// x-component
     position[2] += current_velocity * cos(angle / 180.0 * PI);	// z-component
+	
+//	var x = position[0];
+//	trace(x);
 	
 	setPosition(position, angle);		
 }
