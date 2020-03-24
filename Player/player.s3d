@@ -82,7 +82,6 @@ function player::update_jump(){
 	var delta = 0.03;
 		
 	position[1] += jumping_velocity * delta;
-	position[1] -= GRAVITY * delta * delta;
 	jumping_velocity -= GRAVITY * delta;
 	
 	if(position[1] <= 0){
