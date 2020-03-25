@@ -1,6 +1,7 @@
 #define START_WALK	 	16
 #define END_WALK 		48
 #define GRAVITY			9.8
+#define DELTA_T			1.0/60
 
 /* Player class */
 class Player{
@@ -78,11 +79,9 @@ function player::setPosition(pos,ang){
 }
 
 function player::update_jump(){
-	
-	var delta = 0.03;
 		
-	position[1] += jumping_velocity * delta;
-	jumping_velocity -= GRAVITY * delta;
+	position[1] += jumping_velocity * DELTA_T;
+	jumping_velocity -= GRAVITY * DELTA_T;
 	
 	if(position[1] <= 0){
 		is_jumping = false;
@@ -92,6 +91,7 @@ function player::update_jump(){
 
 function player::update()
 {
+	var previous_velocity = current_velocity;
 	current_velocity = 0;
 	
 	if (keypressed(VK_UP))
@@ -107,19 +107,20 @@ function player::update()
         angle += step_angle;
     	angle = angle % 360;  
     }
-	
+    
     /* Jump, only if not already jumping*/
     if( (keypressed(VK_SPACE) && !is_jumping)){
     	is_jumping = true;
-    	jumping_velocity = 5.0;
+    	jumping_velocity = 4.5;
     }
     
     /* If player is jumping, update jump dynamics*/
     if(is_jumping){
+    	current_velocity = previous_velocity;
     	update_jump();
     }
 		
-	if(current_velocity != 0){
+	if(!is_jumping && current_velocity != 0){
 		current_frame += 1;
 		current_frame = current_frame % (END_WALK - START_WALK);
 	}
