@@ -50,6 +50,8 @@ function OnInit(params)
 
 	// Our initializations
 	
+	setFrameRate(60);
+	
 	curr_level = level();
 	curr_level.init("level.txt");
 	
