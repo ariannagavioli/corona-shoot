@@ -63,9 +63,9 @@ function OnInit(params)
 	curr_player.init();
 	curr_player.setPosition([2,0,2]);
 
-	m_session = Session();
-	m_session.connectTCP(SERVER_IP, SERVER_PORT);
-	m_session.signUp();
+//	m_session = Session();
+//	m_session.connectTCP(SERVER_IP, SERVER_PORT);
+//	m_session.signUp();
 }
 
 
