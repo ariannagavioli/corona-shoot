@@ -3,6 +3,7 @@
 #include <Camera.s3d.h>
 #include <./Level/level.s3d>
 #include <./Player/player.s3d>
+#include <./Network/network.s3d>
 
 /* Set global scene parameters */
 SET SCENE_FOV  = 60;
