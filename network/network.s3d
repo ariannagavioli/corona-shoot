@@ -1,0 +1,51 @@
+/* Network.s3d */
+#define SERVER_IP 	"192.168.43.100"	// Raspberry Pi
+// #define SERVER_IP 	"34.67.36.159" 	// Google cloud
+#define PORT 			80				// TCP Port
+#define NET_PERIOD		1				// 
+
+// PDU Definition Data exchange
+#define POSITION_PDU	1
+#define MISSILE_PDU		2
+#define EXPLOSION_PDU 	3
+
+// PDU Definition Autentication
+#define NAME_ME_PDU		99 	// Command to ask the server for a name
+#define LIST_RQ_PDU		98	// Command to ask the server for a list of players
+#define LIST_RM_PDU		97	// Command from the server to remove a client
+
+
+class Network {
+	static var id;
+	var channel;
+	var PDU;
+	connectTCP();
+	receiveTCP();
+	receiveTCP_busywait();
+	send(PDU);
+};
+	
+function Network::connectTCP() {
+	channel = NetConnectTCP(SERVER_IP, PORT, VR_NO_BLOCKING);
+	SetTimeStep(NET_PERIOD);
+	PDU = vector(8);
+	// TODO: wait to receive and ID from server
+	// TODO: ask for a name 
+	// TODO: wait for a name 
+	// TODO: ask for number of players 
+	// TODO: wait for Number of players
+	// TODO: wait for players' names
+};
+
+function Network::sendTCP(PDU) {
+	NetVarSendToTCP(channel, PDU, "");
+};
+
+class PDU : Network {
+	var size, type;
+	var PDU_POS, PDU_SCORE, PDU_BULLET;
+};
+
+function PDU::init() {
+		
+};
