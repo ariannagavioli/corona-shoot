@@ -1,0 +1,29 @@
+#include "network.s3d"
+class Session : Network {
+	signUp();
+	askServerFor(cmd);
+};
+
+function Session::signUp() {
+	// Wait for an ID from server
+	force_receiveTCP(&dataReceived);
+	// TODO: server report couldn connect
+	m_id = dataReceived[2];
+	m_pdu = PDUClass(m_id);		// creates an PDU object
+
+	// Ask for a name 
+	askServerFor(NAME_ME_PDU);
+	// Wait for a name 
+	force_receiveTCP(&m_badass_name);
+
+	// Ask for number of players 
+	askServerFor(LIST_RQ_PDU);
+
+	// TODO: wait for Number of players
+	// TODO: wait for players' names	
+}
+
+function Session::askServerFor(cmd) {
+	m_pdu.command2[0] = cmd;
+	sendTCP(m_pdu.command2);
+}

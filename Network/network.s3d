@@ -1,0 +1,67 @@
+/* Network.s3d */
+
+
+// PDU Definition Data exchange
+#define POSITION_PDU	1
+#define MISSILE_PDU		2
+#define EXPLOSION_PDU 	3
+
+// PDU Definition Autentication
+#define NAME_ME_PDU		99 	// Command to ask the server for a name
+#define LIST_RQ_PDU		98	// Command to ask the server for a list of players
+#define LIST_RM_PDU		97	// Command from the server to remove a client
+
+class PDUClass {
+	var msgPosition;	// PDU to send position
+	var msgScore;		// PDU to send score
+	var msgBullet;		// PDU to send bullets
+	var command2;
+};
+
+function PDUClass::PDUClass(id) {
+	// pdu to send a command to the server
+	command2 = vector(2);
+	command2[1] = id;
+
+	// Position PDU
+	msgPosition = vector(7);
+	msgPosition[0] = POSITION_PDU;
+	msgPosition[1] = id;
+
+	// Score PDU
+	// PDU_SCORE = vector(num_players);
+	// PDU_SCORE[0] = PDU_SCORE;
+	// PDU_SCORE[1] = id;
+
+	// Bullet PDU
+	// PDU_BULLET = vector(7);
+	// PDU_BULLET[0] = PDU_BULLET
+}
+
+class Network {
+	var m_id;
+	var m_badass_name;
+	var m_pdu;
+	var channel;
+	var dataReceived;
+
+	connectTCP(ip, port);
+	receiveTCP(data);
+	force_receiveTCP(data); // it does busy waiting to wait until have a response
+	sendTCP(data);
+
+};
+
+function Network::connectTCP(ip, port) {
+	channel = NetConnectTCP(ip, port, VR_NO_BLOCKING);
+}
+
+function Network::force_receiveTCP(data) {
+	data = NULL;
+	while(data == NULL)
+		data = NetVarReceiveFromTCP(channel, "");
+}
+
+function Network::sendTCP(data) {
+	NetVarSendToTCP(channel, data, "");
+}
