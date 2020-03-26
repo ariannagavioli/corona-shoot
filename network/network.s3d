@@ -1,8 +1,5 @@
 /* Network.s3d */
-#define SERVER_IP 	"192.168.43.100"	// Raspberry Pi
-// #define SERVER_IP 	"34.67.36.159" 	// Google cloud
-#define PORT 			80				// TCP Port
-#define NET_PERIOD		1				// 
+
 
 // PDU Definition Data exchange
 #define POSITION_PDU	1
@@ -14,38 +11,57 @@
 #define LIST_RQ_PDU		98	// Command to ask the server for a list of players
 #define LIST_RM_PDU		97	// Command from the server to remove a client
 
+class PDUClass {
+	var msgPosition;	// PDU to send position
+	var msgScore;		// PDU to send score
+	var msgBullet;		// PDU to send bullets
+	var command2;
+};
+
+function PDUClass::PDUClass(id) {
+	// pdu to send a command to the server
+	command2 = vector(2);
+	command2[1] = id;
+
+	// Position PDU
+	msgPosition = vector(7);
+	msgPosition[0] = POSITION_PDU;
+	msgPosition[1] = id;
+
+	// Score PDU
+	// PDU_SCORE = vector(num_players);
+	// PDU_SCORE[0] = PDU_SCORE;
+	// PDU_SCORE[1] = id;
+
+	// Bullet PDU
+	// PDU_BULLET = vector(7);
+	// PDU_BULLET[0] = PDU_BULLET
+}
 
 class Network {
-	static var id;
+	var m_id;
+	var m_badass_name;
+	var m_pdu;
 	var channel;
-	var PDU;
-	connectTCP();
-	receiveTCP();
-	receiveTCP_busywait();
-	send(PDU);
-};
-	
-function Network::connectTCP() {
-	channel = NetConnectTCP(SERVER_IP, PORT, VR_NO_BLOCKING);
-	SetTimeStep(NET_PERIOD);
-	PDU = vector(8);
-	// TODO: wait to receive and ID from server
-	// TODO: ask for a name 
-	// TODO: wait for a name 
-	// TODO: ask for number of players 
-	// TODO: wait for Number of players
-	// TODO: wait for players' names
+	var dataReceived;
+
+	connectTCP(ip, port);
+	receiveTCP(data);
+	force_receiveTCP(data); // it does busy waiting to wait until have a response
+	sendTCP(data);
+
 };
 
-function Network::sendTCP(PDU) {
-	NetVarSendToTCP(channel, PDU, "");
-};
+function Network::connectTCP(ip, port) {
+	channel = NetConnectTCP(ip, port, VR_NO_BLOCKING);
+}
 
-class PDU : Network {
-	var size, type;
-	var PDU_POS, PDU_SCORE, PDU_BULLET;
-};
+function Network::force_receiveTCP(data) {
+	data = NULL;
+	while(data == NULL)
+		data = NetVarReceiveFromTCP(channel, "");
+}
 
-function PDU::init() {
-		
-};
+function Network::sendTCP(data) {
+	NetVarSendToTCP(channel, data, "");
+}
