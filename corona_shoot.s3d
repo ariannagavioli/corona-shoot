@@ -3,7 +3,8 @@
 #include <Camera.s3d.h>
 #include <./Level/level.s3d>
 #include <./Player/player.s3d>
-#include <./NetWoRk/session.s3d>
+#include <./Network/session.s3d>
+
 /* Set global scene parameters */
 SET SCENE_FOV  = 60;
 SET SCENE_NEAR = 0.5;
@@ -30,10 +31,15 @@ var curr_player;
 var curr_level;
 
 // Network
-// #define SERVER_IP 	"34.67.36.159" 	// Google VM
-#define SERVER_IP 	"192.168.43.100"	// Raspberry Pi
+#define SERVER_IP 	"34.67.36.159" 	// Google VM
+// #define SERVER_IP 	"192.168.43.100"	// Raspberry Pi
 #define SERVER_PORT 80					// TCP Port
 var m_session;
+
+
+// Participants
+#define MAX_NUM_PLAYERS 20
+var playerCluster;
 
 function OnDownload()
 {
@@ -63,9 +69,18 @@ function OnInit(params)
 	curr_player.init();
 	curr_player.setPosition([2,0,2]);
 
-//	m_session = Session();
-//	m_session.connectTCP(SERVER_IP, SERVER_PORT);
-//	m_session.signUp();
+	playerCluster = Participants(MAX_NUM_PLAYERS);
+	var successfulSignUp = false;
+	m_session = Session();
+	m_session.connectTCP(SERVER_IP, SERVER_PORT);
+	m_session.signUp(&successfulSignUp);
+	// TODO: Window for server rejection
+	// TODO: if (successfulSignUp) {
+		 m_session.queryParticipants(&playerCluster);
+	// TODO: } else {
+		// TODO: OutputLN("Server full");
+	// TODO: }
+
 }
 
 
@@ -82,8 +97,9 @@ function OnFrame()
 	curr_player.update();
 
 	// Our drawings
-	
+	// Draw all Participants
 	curr_level.draw();
+	playerCluster.drawEmAll();	
 	curr_player.draw();
 
 	SceneEnd();

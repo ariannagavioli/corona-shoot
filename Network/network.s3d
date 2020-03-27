@@ -43,7 +43,7 @@ class Network {
 	var m_badass_name;
 	var m_pdu;
 	var channel;
-	var dataReceived;
+	var dataRcv;
 
 	connectTCP(ip, port);
 	receiveTCP(data);

@@ -1,29 +1,55 @@
 #include "network.s3d"
+#include "../Participants/participants.s3d"
+
 class Session : Network {
-	signUp();
+	var numPlayers;
+
+	signUp(success);
+	queryParticipants(players);
+
 	askServerFor(cmd);
 };
 
-function Session::signUp() {
+function Session::signUp(success) {
 	// Wait for an ID from server
-	force_receiveTCP(&dataReceived);
+	force_receiveTCP(&dataRcv);
 	// TODO: server report couldn connect
-	m_id = dataReceived[2];
-	m_pdu = PDUClass(m_id);		// creates an PDU object
+	m_id = dataRcv[2];
+	// TODO: if (m_id != SERVER_FULL) {
+		m_pdu = PDUClass(m_id);		// creates an PDU object
 
-	// Ask for a name 
-	askServerFor(NAME_ME_PDU);
-	// Wait for a name 
-	force_receiveTCP(&m_badass_name);
+		// Ask for a name 
+		askServerFor(NAME_ME_PDU);
+		// Wait for a name 
+		force_receiveTCP(&m_badass_name);
+		success = true;
+	// TODO: } else {
+		// TODO: success = false;
+	// TODO: }
 
+}
+
+
+function Session::queryParticipants(players) {
 	// Ask for number of players 
 	askServerFor(LIST_RQ_PDU);
-
-	// TODO: wait for Number of players
-	// TODO: wait for players' names	
+	
+	// Wait for Number of players
+	force_receiveTCP(&dataRcv);
+	numPlayers = len(dataRcv) - 2;
+	players.availables = numPlayers;
+	// Wait for players' names	
+	for (var i = 0; i < numPlayers; i++) {
+		var player_name;
+		force_receiveTCP(&player_name);
+		players.availability[dataRcv[2] + i - 1] = 1;
+		players.aliases[dataRcv[2] + i - 1] = 1;
+	}
 }
 
 function Session::askServerFor(cmd) {
 	m_pdu.command2[0] = cmd;
 	sendTCP(m_pdu.command2);
 }
+
+

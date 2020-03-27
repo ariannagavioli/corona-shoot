@@ -1,0 +1,36 @@
+class Participants {
+	var availability;
+	var aliases;
+	var scores;
+	var healingPoints;
+
+	var total;
+	var availables;
+
+	drawEmAll();
+};
+
+function Participants::Participants(numPlayers) {
+	total = numPlayers;
+
+	availability = vector(total);
+	aliases = array(total);
+	scores = vector(total);
+	healingPoints = vector(total);
+
+	for (var i = 0; i < total; i ++) {
+		availability[i] = 0;
+		scores[i] = 0;
+		healingPoints[0] = 0;
+	}
+}
+
+function Participants::drawEmAll() {
+	var j = 0;
+	for (var i = 0; (i < total) && (j < availables); i++) {
+		if (availability[i] == 1) {
+			ConsoleText(0.05, 0.9 - 0.03*j, aliases[i] + "'s Score: " + str(scores[i]));
+			j++;
+		}
+	}
+}
