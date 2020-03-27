@@ -4,6 +4,9 @@ class Participants {
 	var scores;
 	var healingPoints;
 
+	var myID;
+	var myAlias;
+
 	var total;
 	var availables;
 
@@ -33,4 +36,5 @@ function Participants::drawEmAll() {
 			j++;
 		}
 	}
+	ConsoleText(0.43, 0.9, "Welcome Back " + myAlias);
 }

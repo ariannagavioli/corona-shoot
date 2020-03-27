@@ -38,13 +38,17 @@ function Session::queryParticipants(players) {
 	force_receiveTCP(&dataRcv);
 	numPlayers = len(dataRcv) - 2;
 	players.availables = numPlayers;
+	
 	// Wait for players' names	
 	for (var i = 0; i < numPlayers; i++) {
 		var player_name;
 		force_receiveTCP(&player_name);
 		players.availability[dataRcv[2] + i - 1] = 1;
-		players.aliases[dataRcv[2] + i - 1] = 1;
+		players.aliases[dataRcv[2] + i - 1] = player_name;
 	}
+
+	players.myID = m_id;
+	players.myAlias = m_badass_name;
 }
 
 function Session::askServerFor(cmd) {
