@@ -2,6 +2,8 @@
 #define END_WALK 		48
 #define GRAVITY			9.8
 #define DELTA_T			1.0/60
+#define MAX_CAM_OFFSET	4
+#define MIN_CAM_OFFSET	1
 
 /* Player class */
 class Player{
@@ -144,18 +146,18 @@ function player::update()
 	current_velocity = 0;
 	rotation_dir = 0;
 	
-	if (keypressed(VK_UP))
+	if (keypressed("w"))
 		current_velocity = step_velocity;
-	else if (keypressed(VK_DOWN))
+	else if (keypressed("s"))
 		current_velocity = -step_velocity;	
 	
-	if (keypressed(VK_RIGHT)){
+	if (keypressed("d")){
 		angle -= step_angle;
 		angle = angle % 360;
 		
 		rotation_dir = -1;
 	}
-    else if(keypressed(VK_LEFT)){
+    else if(keypressed("a")){
         angle += step_angle;
     	angle = angle % 360;  
     	
@@ -189,6 +191,14 @@ function player::update()
     
     position[0] += current_velocity * sin(angle / 180.0 * PI);	// x-component
     position[2] += current_velocity * cos(angle / 180.0 * PI);	// z-component
+    
+    if(keypressed(VK_DOWN) && !first_person_view)
+    	if(camera_offset < MAX_CAM_OFFSET)
+    		camera_offset += 0.1;
+    		
+    if(keypressed(VK_UP) && !first_person_view)
+    	if(camera_offset > MIN_CAM_OFFSET)
+    		camera_offset -= 0.1;
     
     if(!debug)
     	update_camera();
