@@ -29,6 +29,7 @@ function DrawGrid(col, size);
 /* GLOBAL VARIABLES */
 var curr_player;
 var curr_level;
+var camera;
 
 // Network
 #define SERVER_IP 	"34.67.36.159" 	// Google VM
@@ -88,11 +89,20 @@ function OnInit(params)
 function OnFrame()
 {
 	/* manage camera */
-	CameraMoveMouse();
+//	CameraMoveMouse();
 
 	SceneBegin();
 
 	DrawGrid([0.5, 0.5, 0.5], 100);
+	
+	/* Debug camera view */
+	if(keypressed(VK_LCONTROL)){
+		curr_player.debug_mode();
+	}
+	
+	if(curr_player.debug){
+		CameraMoveMouse();
+	}
 
 	curr_player.update();
 
@@ -101,6 +111,8 @@ function OnFrame()
 	curr_level.draw();
 	playerCluster.drawEmAll();	
 	curr_player.draw();
+	
+	
 
 	SceneEnd();
 }

@@ -16,9 +16,11 @@ class Player{
 	var weapon_object;
 	
 	var player_object;
+	var camera;
 	
 	var position;				//[x,y,z] point in space of the player
 	var angle;					//determines the direction the player is facing
+	var camera_angle;
 	var step_velocity;			//how much player moves in one frame over the plane x-z (absolute value)
 	var current_velocity;		//current player velocity (is signed, x-z)
 	var step_angle;				//delta angle of one frame: how much rotation can be done in one frame
@@ -28,13 +30,21 @@ class Player{
 	
 	var current_frame;			//current frame of the mesh
 	
+	var first_person_view;
+	
 	var life_points;
+	var id;
+	var name;
+	
+	var debug;
 	
 	init();
 	draw();
+	update_camera();
 	setPosition(pos,ang);
 	update_jump();
 	update();
+	debug_mode();
 };
 
 function player::init(){
@@ -51,12 +61,14 @@ function player::init(){
 	weapon_object = CVmObj(weapon_mesh);
 	
 	player_object = CVmObj();
+	camera = CameraGetCurrent();
 	
 	player_object.addChild(lower_object);
 	player_object.addChild(upper_object);
 	player_object.addChild(weapon_object);
 	
 	angle = 0;
+	camera_angle = 180;
 	position = [0,0,0];		//[x,y,z]
 	step_velocity = 0.08;
 	step_angle = 1.0;	
@@ -67,15 +79,32 @@ function player::init(){
 	jumping_velocity = 0;
 	is_jumping = false;
 	
+	/* Third person view */
+	first_person_view = true;
+	
 	life_points = 100;
 	
 	setPosition(position,angle);
+	
+	debug = false;
+}
+
+function player::update_camera(){
+	/* 1st person*/
+	if(first_person_view){
+		camera.setPosition(position + [0,1.3,0]);			//Place where the player is, at 1m height
+		camera.setRotation(camera_angle, [0,-1,0]);		//Rotate the camera accordingly to the player rotation
+	}
+	/* 3rd person */
+	else {
+		
+	}
 }
 
 function player::setPosition(pos,ang){
 	position = pos;
 	player_object.setPosition(position);
-	player_object.setRotation(ang,[0,1,0]);	//rotate the player around y-axis
+	player_object.setRotation(angle,[0,1,0]);			//Rotate the player around y-axis
 }
 
 function player::update_jump(){
@@ -102,10 +131,16 @@ function player::update()
 	if (keypressed(VK_RIGHT)){
 		angle -= step_angle;
 		angle = angle % 360;
+		
+		camera_angle -= step_angle;
+		camera_angle = camera_angle % 360;
 	}
     else if(keypressed(VK_LEFT)){
         angle += step_angle;
     	angle = angle % 360;  
+    	
+		camera_angle += step_angle;
+    	camera_angle = camera_angle % 360;
     }
     
     /* Jump, only if not already jumping*/
@@ -113,24 +148,28 @@ function player::update()
     	is_jumping = true;
     	jumping_velocity = 4.5;
     }
-    
     /* If player is jumping, update jump dynamics*/
     if(is_jumping){
     	current_velocity = previous_velocity;
     	update_jump();
     }
-		
+	/* Update the mesh */
 	if(!is_jumping && current_velocity != 0){
 		current_frame += 1;
 		current_frame = current_frame % (END_WALK - START_WALK);
 	}
 	
+	/* Switching the camera setting */
+	if(keyboard() == "v"){
+		debug = false;
+		first_person_view = !first_person_view;
+	}
     
     position[0] += current_velocity * sin(angle / 180.0 * PI);	// x-component
     position[2] += current_velocity * cos(angle / 180.0 * PI);	// z-component
-	
-//	var x = position[0];
-//	trace(x);
+    
+    if(!debug)
+    	update_camera();
 	
 	setPosition(position, angle);		
 }
@@ -141,4 +180,8 @@ function player::draw()
 		player_object.draw(VR_FRAMENUMBER,START_WALK + current_frame);
 	else
 		player_object.draw(VR_FRAMENUMBER,0);
+}
+
+function player::debug_mode(){
+	debug = true;
 }
