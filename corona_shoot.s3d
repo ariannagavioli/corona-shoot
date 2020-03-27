@@ -70,17 +70,17 @@ function OnInit(params)
 	curr_player.init();
 	curr_player.setPosition([2,0,2]);
 
-	playerCluster = Participants(MAX_NUM_PLAYERS);
-	var successfulSignUp = false;
-	m_session = Session();
-	m_session.connectTCP(SERVER_IP, SERVER_PORT);
-	m_session.signUp(&successfulSignUp);
-	// TODO: Window for server rejection
-	// TODO: if (successfulSignUp) {
-		 m_session.queryParticipants(&playerCluster);
-	// TODO: } else {
-		// TODO: OutputLN("Server full");
-	// TODO: }
+	// playerCluster = Participants(MAX_NUM_PLAYERS);
+	// var successfulSignUp = false;
+	// m_session = Session();
+	// m_session.connectTCP(SERVER_IP, SERVER_PORT);
+	// m_session.signUp(&successfulSignUp);
+	// // TODO: Window for server rejection
+	// // TODO: if (successfulSignUp) {
+	// 	 m_session.queryParticipants(&playerCluster);
+	// // TODO: } else {
+	// 	// TODO: OutputLN("Server full");
+	// // TODO: }
 
 }
 
@@ -109,7 +109,7 @@ function OnFrame()
 	// Our drawings
 	// Draw all Participants
 	curr_level.draw();
-	playerCluster.drawEmAll();	
+	// playerCluster.drawEmAll();	
 	curr_player.draw();
 	
 	
