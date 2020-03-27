@@ -107,8 +107,8 @@ function OnFrame()
 	curr_player.update();
 
 	// Our drawings
-	// Draw all Participants
 	curr_level.draw();
+	// Draw all Participants
 	playerCluster.drawEmAll();	
 	curr_player.draw();
 	
@@ -144,6 +144,7 @@ function OnError(){
 function OnExit()
 {
 	// TODO: put your cleanup code here
+	m_session.closeTCP();
 }
 
 

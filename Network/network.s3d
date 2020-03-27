@@ -49,7 +49,7 @@ class Network {
 	receiveTCP(data);
 	force_receiveTCP(data); // it does busy waiting to wait until have a response
 	sendTCP(data);
-
+	closeTCP();
 };
 
 function Network::connectTCP(ip, port) {
@@ -64,4 +64,8 @@ function Network::force_receiveTCP(data) {
 
 function Network::sendTCP(data) {
 	NetVarSendToTCP(channel, data, "");
+}
+
+function Network::closeTCP() {
+	NetClose(channel);
 }
