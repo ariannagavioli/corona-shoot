@@ -2,6 +2,7 @@
 #define END_WALK 		48
 #define GRAVITY			9.8
 #define DELTA_T			1.0/60
+#define CAMERA_OFFSET	1.0
 
 /* Player class */
 class Player{
@@ -28,6 +29,7 @@ class Player{
 	var jumping_velocity;		//velocity over the y-axis
 	
 	var is_jumping;
+	var jump_sound;
 	var rotation_dir;			//indicates rotation direction
 	
 	var current_frame;			//current frame of the mesh
@@ -64,6 +66,7 @@ function player::init(){
 	
 	player_object = CVmObj();
 	camera = CameraGetCurrent();
+	jump_sound = CVmVRAWav("jump.wav");
 	
 	player_object.addChild(lower_object);
 	player_object.addChild(upper_object);
@@ -104,7 +107,7 @@ function player::update_camera(){
 	
 	/* 3rd person */
 	else {
-		
+		camera.setTarget(position);
 	}
 	
 	camera.setPosition(camera_position);			//Place where the player is, at 1m height
@@ -156,6 +159,7 @@ function player::update()
     if( (keypressed(VK_SPACE) && !is_jumping)){
     	is_jumping = true;
     	jumping_velocity = 4.5;
+    	jump_sound.play();
     }
     /* If player is jumping, update jump dynamics*/
     if(is_jumping){
@@ -172,6 +176,8 @@ function player::update()
 	if(keyboard() == "v"){
 		debug = false;
 		first_person_view = !first_person_view;
+		if(first_person_view)
+			camera.free();				// Frees the camera from the target
 	}
     
     position[0] += current_velocity * sin(angle / 180.0 * PI);	// x-component
