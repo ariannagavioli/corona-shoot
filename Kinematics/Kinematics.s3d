@@ -1,0 +1,29 @@
+/* Kinematics*/
+#ifndef KINEMATICS_S3D
+#define KINEMATICS_S3D
+
+class Kinematics {
+	var position; 
+	
+	var angle;
+	var step_angle;
+	var rotation_dir;
+
+	var velocity;
+	var prev_velocity;
+
+	var step_velocity;
+};
+
+
+function Kinematics::Kinematics() {
+	/*The values of the constructor can change*/
+	angle = 0;
+	position = [2, 0, 2];	// [x, y, z]
+	step_velocity = 0.08;
+	step_angle = 1.0;
+	velocity = 0;
+	rotation_dir = 0;
+}
+
+#endif

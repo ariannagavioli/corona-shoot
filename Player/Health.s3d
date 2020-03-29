@@ -1,0 +1,16 @@
+/* Health */
+#ifndef HEALTH_S3D
+#define HEALTH_S3D 
+class Health {
+	var life_points;
+	var max_points;
+	var alive;	
+};
+
+function Health::Health() {
+	life_points = 100;
+	max_points = 100;
+	alive = true;
+}
+
+#endif

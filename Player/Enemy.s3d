@@ -1,0 +1,27 @@
+/* Enemy */
+#ifndef ENEMY_S3D
+#define ENEMY_S3D 
+
+#include "Identification.s3d"
+#include "../RenderEntity/DrawableTrooper.s3d"
+#include "../Kinematics/Kinematics.s3d"
+#include "Health.s3d"
+
+class Enemy {
+// Entity - Components 
+	var tagID;
+	var weapon;		// 0 or 1
+	var drawable;
+	var m_kinematics;
+	var m_health;
+};
+
+function Enemy::Enemy() {
+	tagID = Identification();
+	weapon = false;
+	drawable = DrawableTrooper();
+	m_kinematics = Kinematics();
+	m_health = Health();
+}
+
+#endif

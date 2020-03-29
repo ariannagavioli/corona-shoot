@@ -1,0 +1,37 @@
+/* Armament */
+#ifndef DRAWABLE_ARMAMENT_S3D
+#define DRAWABLE_ARMAMENT_S3D 
+
+class DrawableArmament {
+// Properties
+	var railGun;		// RenderEntity()
+	var rocketLauncher;	// RenderEntity()
+	var weaponOnHands; 	// What to draw
+// Methods
+	toggle();			// switch between guns
+};
+
+function DrawableArmament::DrawableArmament(scale_factor) { // the scale factor is given for a parent
+	rocketLauncher = RenderEntity("rocketl.AAM");
+	railGun = RenderEntity("railgun.AAM");
+
+	rocketLauncher.scale(scale_factor);
+	railgun.scale(scale_factor);	
+
+	rocketLauncher.hide();
+	weaponOnHands = true;
+}
+
+function DrawableArmament::toggle() {
+	if (weaponOnHands) {
+		weaponOnHands = false;
+		railgun.hide();
+		rocketLauncher.unhide();
+	} else {
+		weaponOnHands = true;
+		rocketLauncher.hide();
+		railgun.unhide();
+	}
+}
+
+#endif

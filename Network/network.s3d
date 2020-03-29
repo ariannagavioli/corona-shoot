@@ -5,6 +5,7 @@
 #define POSITION_PDU	1
 #define MISSILE_PDU		2
 #define EXPLOSION_PDU 	3
+#define WEAPON_PDU		4
 
 // PDU Definition Autentication
 #define NAME_ME_PDU		99 	// Command to ask the server for a name

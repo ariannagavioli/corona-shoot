@@ -1,3 +1,11 @@
+#include "../RenderEntity/RenderEntity.s3d"
+#include "../RenderEntity/DrawableArmament.s3d"
+#include "../RenderEntity/DrawablePerson.s3d"
+#include "../RenderEntity/DrawableTrooper.s3d"
+#include "../Kinematics/Kinematics.s3d"
+#include "../Player/Identification.s3d"
+#include "../Player/Health.s3d"
+
 class Participants {
 	var availability;
 	var aliases;
@@ -6,12 +14,14 @@ class Participants {
 
 	var myID;
 	var myAlias;
+	var myWepon;
 
 	var total;
 	var availables;
 
 	drawEmAll();
 };
+
 
 function Participants::Participants(numPlayers) {
 	total = numPlayers;

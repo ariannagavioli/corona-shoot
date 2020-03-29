@@ -1,5 +1,6 @@
 #include "network.s3d"
-#include "../Participants/participants.s3d"
+#include "../System/System.s3d"
+// #include "../Participants/participants.s3d"
 
 class Session : Network {
 	var numPlayers;
@@ -30,25 +31,39 @@ function Session::signUp(success) {
 }
 
 
-function Session::queryParticipants(players) {
+function Session::queryParticipants(controller) {
 	// Ask for number of players 
 	askServerFor(LIST_RQ_PDU);
 	
 	// Wait for Number of players
 	force_receiveTCP(&dataRcv);
 	numPlayers = len(dataRcv) - 2;
-	players.availables = numPlayers;
-	
-	// Wait for players' names	
+	controller.availables = numPlayers;
+	// Wait for players' names
+	var p_id;
+	var p_idx;
+	OutputLN();
+	OutputLN("numPlayers ", numPlayers);
+	OutputLN("dataRcv ", dataRcv);
 	for (var i = 0; i < numPlayers; i++) {
 		var player_name;
 		force_receiveTCP(&player_name);
-		players.availability[dataRcv[2] + i - 1] = 1;
-		players.aliases[dataRcv[2] + i - 1] = player_name;
+		p_id = dataRcv[2 + i];
+		p_idx = p_id - 1;
+		if (p_id == m_id) {
+			controller.participants[p_idx] = Myself();
+		} else {
+			controller.participants[p_idx] = Enemy();
+		}
+		controller.participants[p_idx].tagID.number = p_id;
+		controller.participants[p_idx].tagID.name = player_name;
+		OutputLN("id ", m_id, ", p_idx ", p_idx, ", name ", player_name);
+		// players.availability[dataRcv[2] + i - 1] = 1;
+		// players.aliases[dataRcv[2] + i - 1] = player_name;
 	}
 
-	players.myID = m_id;
-	players.myAlias = m_badass_name;
+	// players.myID = m_id;
+	// players.myAlias = m_badass_name;
 }
 
 function Session::askServerFor(cmd) {

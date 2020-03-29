@@ -1,0 +1,17 @@
+/* identification */
+#ifndef IDENTIFICATION_S3D
+#define IDENTIFICATION_S3D 
+// This is intended to be a component of a trooper 
+// to identify
+
+class Identification {
+	var number;
+	var name;
+};
+
+function Identification::Identification() {
+	number = -1;
+	name = "NULL";
+}
+
+#endif

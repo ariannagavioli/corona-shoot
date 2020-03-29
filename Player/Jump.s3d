@@ -1,0 +1,15 @@
+/* Jump */
+#ifndef JUMP_S3D
+#define JUMP_S3D 
+
+class Jump {
+	var is;
+	var velocity;
+};
+
+function Jump::Jump() {
+	is = false;
+	velocity = 0;
+}
+
+#endif

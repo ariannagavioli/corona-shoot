@@ -1,0 +1,46 @@
+/* Drawable person */
+#ifndef DRAWABLE_PERSON_S3D 
+#define DRAWABLE_PERSON_S3D
+
+#include "RenderEntity.s3d"
+
+#define START_WALK_SWAT	 	16
+#define END_WALK_SWAT	 	48
+
+class DrawablePerson {
+// Properties:
+	var scaleMeasure; 	// scale factor
+	var lowerBody;		// RenderEntity(): lower body (obj + mesh)
+	var upperBody;		// RenderEntity(): upper Body (obj + mesh)
+	var obj;			// CVmObj(): full body object
+// Methods:
+	addArmament(object); // to add the weapons to the body
+	setPosition(pos);
+	setRotation(angle);
+};
+
+function DrawablePerson::DrawablePerson() {
+	upperBody = RenderEntity("swat_lower.AAM");
+	lowerBody = RenderEntity("swat_upper.AAM");
+
+	lowerBody.normalization(1, &scaleMeasure);
+	upperBody.scale(scaleMeasure);
+
+	obj = CVmObj();
+	obj.addChild(lowerBody.obj);
+	obj.addChild(upperBody.obj);
+}
+
+function DrawablePerson::addArmament(object) {
+	obj.addChild(object);
+}
+
+function DrawablePerson::setPosition(pos) {
+	obj.setPosition(pos);
+}
+
+function DrawablePerson::setRotation(angle) {
+	obj.setRotation(angle, [0, 1, 0]);
+}
+
+#endif

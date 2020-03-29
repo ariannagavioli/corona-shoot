@@ -4,15 +4,14 @@
 #include <./Level/level.s3d>
 #include <./Player/player.s3d>
 #include <./Network/session.s3d>
-
+#include <./System/System.s3d>
+#include <./Manager/Manager.s3d>
 /* Set global scene parameters */
 SET SCENE_FOV  = 60;
 SET SCENE_NEAR = 0.5;
 SET SCENE_FAR  = 1000;
 
-
 // TODO: put your global variables here
-
 
 /* Camera globals */
 var CamPos = [0.0, 5.0, 30.0]; 	// camera position
@@ -29,18 +28,19 @@ function DrawGrid(col, size);
 /* GLOBAL VARIABLES */
 var curr_player;
 var curr_level;
-var camera;
+// var camera;
 
 // Network
 #define SERVER_IP 	"34.67.36.159" 	// Google VM
 // #define SERVER_IP 	"192.168.43.100"	// Raspberry Pi
 #define SERVER_PORT 80					// TCP Port
 var m_session;
-
+var m_index;
+var m_system;
 
 // Participants
 #define MAX_NUM_PLAYERS 20
-var playerCluster;
+var m_manager;
 
 function OnDownload()
 {
@@ -66,22 +66,25 @@ function OnInit(params)
 	curr_level = level();
 	curr_level.init("level.txt");
 	
-	curr_player = player();
-	curr_player.init();
-	curr_player.setPosition([2,0,2]);
+	// curr_player = player();
+	// curr_player.init();
+	// curr_player.setPosition([2,0,2]);
 
-	playerCluster = Participants(MAX_NUM_PLAYERS);
+	m_system = System();
+
+	m_manager = Manager(MAX_NUM_PLAYERS);
 	var successfulSignUp = false;
 	m_session = Session();
 	m_session.connectTCP(SERVER_IP, SERVER_PORT);
 	m_session.signUp(&successfulSignUp);
 	// TODO: Window for server rejection
 	// TODO: if (successfulSignUp) {
-		 m_session.queryParticipants(&playerCluster);
+		 m_session.queryParticipants(&m_manager);
 	// TODO: } else {
 		// TODO: OutputLN("Server full");
 	// TODO: }
-
+	m_index = m_session.m_id - 1;
+	m_manager.participants[m_index].drawable.setPosition([2, 0, 2], 0);
 }
 
 
@@ -89,29 +92,48 @@ function OnInit(params)
 function OnFrame()
 {
 	/* manage camera */
-//	CameraMoveMouse();
+	// CameraMoveMouse();
 
 	SceneBegin();
 
 	DrawGrid([0.5, 0.5, 0.5], 100);
 	
 	/* Debug camera view */
-	if(keypressed(VK_LCONTROL)){
-		curr_player.debug_mode();
-	}
+	// if(keypressed(VK_LCONTROL)){
+	// 	curr_player.debug_mode();
+	// }
 	
-	if(curr_player.debug){
-		CameraMoveMouse();
-	}
+	// if(curr_player.debug){
+	// 	CameraMoveMouse();
+	// }
 
-	curr_player.update();
-
-	// Our drawings
+	// curr_player.update();
+	/* code */
 	curr_level.draw();
-	// Draw all Participants
-	playerCluster.drawEmAll();	
-	curr_player.draw();
-	
+	var j = 0;
+	for (var i = 0; i < MAX_NUM_PLAYERS; ++i) {
+		/* Just the troopers with id bigger than 0 */
+		if (m_manager.participants[i].tagID.number > 0) {
+			/* COMPULSARY SYSTEMS FOR MYSELF*/
+			if (i == m_index) {
+				m_system.showMyName(m_manager.participants[i]); 
+
+				m_system.moveTrooper(m_manager.participants[i]);
+				m_system.jump(m_manager.participants[i]);
+				m_system.pointOfView(m_manager.participants[i]);
+				m_system.selectWeapon(m_manager.Participants[i]);			
+			}
+
+			m_system.updateTrooper(m_manager.participants[i]);
+			// Our drawings
+			m_system.drawTrooper(m_manager.participants[i]);
+			m_system.showScoreTable(j, m_manager.participants[i]);
+			j++;
+		}
+	}
+	// // Draw all Participants
+	// // playerCluster.drawEmAll();	
+	// curr_player.draw();
 	
 
 	SceneEnd();

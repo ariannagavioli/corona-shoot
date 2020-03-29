@@ -1,0 +1,43 @@
+/* Render Entity */
+// This is a general objec to call a renderable entity, such as :
+// weapon, trooper, meds, (bullets?), cure
+// So far: The difference between cure and meds, are: 
+// -> meds are something temporary that enlarge your lifespan 
+// -> and cure: allows you to win the competition
+#ifndef RENDER_ENTITY_S3D
+#define RENDER_ENTITY_S3D
+
+class RenderEntity {
+// Properties:
+	var mesh;		// CVmNewMesh()
+	var obj;		// CVmObj()
+// Methods:
+	normalization(scale_factor, scale_factor_ptr);	// normalization and creates the obj
+	scale(scale_factor);							// scales and creates the obj
+	hide();											// hide the obj
+	unhide();										// unhide the obj
+};
+
+function RenderEntity::RenderEntity(fileName) {
+	mesh = CVmNewMesh(fileName);
+}
+
+function RenderEntity::normalization(scale_factor, scale_factor_ptr) {
+	scale_factor_ptr = mesh.normalize(scale_factor);
+	obj = CVmObj(mesh);
+}
+
+function RenderEntity::scale(scale_factor) {
+	mesh.scale(scale_factor);
+	obj = CVmObj(mesh);
+}
+
+function RenderEntity::hide() {
+	obj.hide();
+}
+
+function RenderEntity::unhide() {
+	obj.unhide();
+}
+
+#endif

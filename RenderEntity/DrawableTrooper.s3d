@@ -1,0 +1,37 @@
+/* Drawable trooper */
+#ifndef DRAWABLE_TROOPER_S3D
+#define DRAWABLE_TROOPER_S3D 
+
+#include "DrawablePerson.s3d"
+#include "DrawableArmament.s3d"
+
+class DrawableTrooper {
+// Properties
+	var body;		// DrawablePerson
+	var weapon;		// Weapons
+	var frame;		// frame number to draw
+// Methods
+	setPosition(pos, angle);
+	draw(frame_number);
+};
+
+function DrawableTrooper::DrawableTrooper() {
+	body = DrawablePerson();
+	weapon = DrawableArmament(body.scaleMeasure);
+
+
+	body.addArmament(weapon.railGun.obj);
+	body.addArmament(weapon.rocketLauncher.obj);
+	frame = 0;
+}
+
+function DrawableTrooper::setPosition(pos, angle) {
+	body.setPosition(pos);
+	body.setRotation(angle);
+}
+
+function DrawableTrooper::draw(frame_number) {
+	body.obj.draw(VR_FRAMENUMBER, frame_number);
+}
+
+#endif
