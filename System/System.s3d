@@ -57,6 +57,7 @@ function System::jump(trooper) {
 	if(KeyPressed(VK_SPACE) && !trooper.jumping.is) {
 		trooper.jumping.is = true;
 		trooper.jumping.velocity = 4.45;
+		trooper.jumping.sound.play();
 	}
 
     /* If player is jumping, update jump dynamics*/
@@ -108,15 +109,12 @@ function System::updateTrooper(trooper) {
 }
 
 function System::pointOfView(obj) {
-	static var pressed = false;
-	
-	var pressed2 = KeyPressed("v"); 
-	if ((pressed == false) && (pressed2)) {
+ 
+	if (keyboard() == "v") {				//DON'T USE KEYPRESSED FUNCTION
 		obj.cam.view = !obj.cam.view;
 		OutputLN(obj.cam.view);
-		obj.cam.cam.Free();	// it frees from setTarget;
+		obj.cam.cam.Free();					// it frees from setTarget;
 	}
-	pressed = pressed2;
 
 
 	/* 1st Person */
@@ -124,10 +122,16 @@ function System::pointOfView(obj) {
 		obj.cam.position = obj.m_kinematics.position + [0, 1.3, 0];		//Camera position = player position with a height offset from the ground
 		obj.cam.angle = obj.m_kinematics.angle + 180.0;
 		obj.cam.angle = obj.cam.angle % 360;			
-		obj.cam.cam.setRotation(obj.cam.angle, [0,-1,0]);		//Rotate the camera accordingly to the player rotation
+		obj.cam.cam.setRotation(obj.cam.angle, [0,-1,0]);				//Rotate the camera accordingly to the player rotation
 	}
 	/* 3rd Person */
 	else {
+		if(keyPressed(VK_UP) && obj.cam.offset > MIN_CAM_OFFSET)		//Getting closer to the trooper
+			obj.cam.offset -= 0.1;
+			
+		if(keyPressed(VK_DOWN) && obj.cam.offset < MAX_CAM_OFFSET)		//Distantiating from the trooper
+			obj.cam.offset += 0.1;
+		
 		obj.cam.position[0] = obj.m_kinematics.position[0] - obj.cam.offset * sin(obj.m_kinematics.angle * PI / 180.0);
 		obj.cam.position[1] = obj.m_kinematics.position[1] + 2;
 		obj.cam.position[2] = obj.m_kinematics.position[2] - obj.cam.offset * cos(obj.m_kinematics.angle * PI / 180.0);
