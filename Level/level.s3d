@@ -12,6 +12,15 @@ class level {
 	var floor_material;
 	var floor_texture;
 	
+	/* Sky */
+	var sky_mesh;
+	var sky_material;
+	var sky_texture;
+	
+	/* Dimensions */
+	var num_rows;
+	var num_columns;
+	
 	init(level_textfile);
 	draw();
 };
@@ -33,8 +42,8 @@ function level::init(level_textfile){
 	
 	var f = LoadFile(level_textfile);
 
-	var num_rows = len(f);
-	var num_columns = len(f[0]);
+	num_rows = len(f);
+	num_columns = len(f[0]);
 	
 	for(var i=0; i< num_rows; i++)
 	{
@@ -67,10 +76,15 @@ function level::init(level_textfile){
 	floor_mesh.translate(0,-1,0);
 	floor_mesh.SetMaterial(floor_material);
 	floor_mesh.ModulateMaterials(0,1,0,1);	
+	
+	sky_mesh = CVmNewMesh("sky.AAM");
+	sky_mesh.scale(num_rows*1.5, 1, num_columns*1.5);
+	sky_mesh.translate(num_rows / 2.0, 0 , num_columns / 2.0);
 }
 
 function level::draw(){
 	foreach (var t in wall_obj_array)
 		t.Draw();
 	floor_mesh.draw();
+	sky_mesh.draw();
 }

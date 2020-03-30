@@ -84,7 +84,6 @@ function System::MoveTrooper(trooper) {
 		trooper.m_kinematics.velocity = -trooper.m_kinematics.step_velocity;
 
 	if (KeyPressed("d")){
-
 		trooper.m_kinematics.angle -= trooper.m_kinematics.step_angle;
 		trooper.m_kinematics.angle = trooper.m_kinematics.angle % 360;
 		
