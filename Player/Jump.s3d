@@ -5,11 +5,13 @@
 class Jump {
 	var is;
 	var velocity;
+	var sound;
 };
 
 function Jump::Jump() {
 	is = false;
 	velocity = 0;
+	sound = CVmVRAWav("jump.wav");
 }
 
 #endif
