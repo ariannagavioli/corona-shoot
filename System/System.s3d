@@ -20,7 +20,14 @@ class System {
 	showMyName(myAlias);
 	collition(obj1, obj2);
 	sendKinematics(kinematics_owner, m_ses, obj);
+	sendEvent(m_ses, obj);
 };
+
+function System::sendEvent(m_ses, trooper) {
+	/* Send weapon switch */
+	if(trooper.weapon)
+		m_ses.sendEvent(WEAPON_SWITCH_PDU);
+}
 
 function System::showMyName(trooper) {
 	ConsoleText(0.43, 0.9, "Welcome Back " + trooper.tagID.name);

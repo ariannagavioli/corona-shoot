@@ -6,6 +6,7 @@
 #define MISSILE_PDU		2
 #define EXPLOSION_PDU 	3
 #define WEAPON_PDU		4
+#define WEAPON_SWITCH_PDU		5
 
 // PDU Definition Autentication
 #define NAME_ME_PDU		99 	// Command to ask the server for a name
@@ -16,10 +17,16 @@ class PDUClass {
 	var msgPosition;	// PDU to send position
 	var msgScore;		// PDU to send score
 	var msgBullet;		// PDU to send bullets
-	var command2;
-	
+	var command2;		// PDU for sending commands to the Server
+	var msgEvent;		// pdu to send events 
+
 	kinematics(pdu_type, pos, vel, angle);	// generate trooper position pdu
+	event(event_type);
 };
+
+function PDUClass::event(event_type) {
+	msgEvent[0] = event_type;
+}
 
 function PDUClass::kinematics(pdu_type, pos, vel, angle) {
 	msgPosition[0] = pdu_type;
@@ -41,6 +48,11 @@ function PDUClass::PDUClass(id) {
 	msgPosition[0] = TROOPER_KINEMATICS_PDU;
 	msgPosition[1] = id;
 
+	// Event PDU
+	msgEvent = vector(3);
+	msgEvent[0] = WEAPON_SWITCH_PDU;
+	msgEvent[1] = id;
+	msgEvent[2] = 1;
 	// Score PDU
 	// PDU_SCORE = vector(num_players);
 	// PDU_SCORE[0] = PDU_SCORE;

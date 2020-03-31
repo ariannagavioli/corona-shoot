@@ -123,6 +123,7 @@ function OnFrame()
 				m_system.pointOfView(m_manager.participants[i]);
 				m_system.selectWeapon(m_manager.Participants[i]);
 				m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[i]);			
+				m_system.sendEvent(&m_session, m_manager.Participants[i]);
 			}
 
 			m_system.updateTrooper(m_manager.participants[i]);
@@ -157,7 +158,6 @@ function OnTimer()
 	if (recvData != NULL) {
 
 		/* Updating enemies kinematics */
-		// OutputLN(recvData);
 		if(recvData[0] == TROOPER_KINEMATICS_PDU) {
 			var incoming_id = recvData[1] - 1;
 			m_manager.participants[incoming_id].m_kinematics.pos[0] = recvData[2];
@@ -175,6 +175,12 @@ function OnTimer()
 
 		if(recvData[0] == LIST_RM_PDU) {
 			m_manager.rmParticipant(recvData[2]);
+		}
+
+		if(recvData[0] == WEAPON_SWITCH_PDU) {
+			var incoming_id = recvData[1] - 1;
+			m_manager.participants[incoming_id].weapon = true;
+			OutputLN("WEAPON_SWITCH_PDU ", recvData);
 		}
 	}
 }

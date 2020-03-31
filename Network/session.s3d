@@ -10,7 +10,13 @@ class Session : Network {
 
 	askServerFor(cmd);
 	sendKinematics(kinematics_owner, xyzvel);
+	sendEvent(event_pdu_type);
 };
+
+function Session::sendEvent(event_pdu_type) {
+	m_pdu.event(event_pdu_type);
+	sendTCP(m_pdu.msgEvent);
+}
 
 function Session::sendKinematics(kinematics_owner, xyzvel) {
 	m_pdu.kinematics(kinematics_owner, xyzvel.pos, xyzvel.vel, xyzvel.angle);	// loads position into PDU
