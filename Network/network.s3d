@@ -3,10 +3,11 @@
 
 // PDU Definition Data exchange
 #define TROOPER_KINEMATICS_PDU	1
-#define MISSILE_PDU		2
-#define EXPLOSION_PDU 	3
-#define WEAPON_PDU		4
+#define MISSILE_PDU				2
+#define EXPLOSION_PDU 			3
+#define WEAPON_PDU				4
 #define WEAPON_SWITCH_PDU		5
+#define JUMP_SCREAM_PDU			6
 
 // PDU Definition Autentication
 #define NAME_ME_PDU		99 	// Command to ask the server for a name

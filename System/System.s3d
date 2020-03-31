@@ -27,6 +27,9 @@ function System::sendEvent(m_ses, trooper) {
 	/* Send weapon switch */
 	if(trooper.weapon)
 		m_ses.sendEvent(WEAPON_SWITCH_PDU);
+
+	if(trooper.m_kinematics.just_jumped)
+		m_ses.sendEvent(JUMP_SCREAM_PDU);
 }
 
 function System::showMyName(trooper) {

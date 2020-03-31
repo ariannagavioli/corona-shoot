@@ -167,20 +167,28 @@ function OnTimer()
 			m_manager.participants[incoming_id].m_kinematics.angle = recvData[7];
 		}
 
+		/* Switch weapons of the enemies */
+		if(recvData[0] == WEAPON_SWITCH_PDU) {
+			var incoming_id = recvData[1] - 1;
+			m_manager.participants[incoming_id].weapon = true;
+		}
+
+		/* Jumped event on the enemies */
+		if(recvData[0] == JUMP_SCREAM_PDU) {
+			var incoming_id = recvData[1] - 1;
+			m_manager.participants[incoming_id].m_kinematics.just_jumped = true;	
+		}
+
+		/* Server says there's a new guy in town */
 		if(recvData[0] == LIST_RQ_PDU) {
 			var name;
 			m_session.force_receiveTCP(&name);
 			m_manager.addParticipant(recvData[2], name);
 		}
 
+		/* Server says one just left*/
 		if(recvData[0] == LIST_RM_PDU) {
 			m_manager.rmParticipant(recvData[2]);
-		}
-
-		if(recvData[0] == WEAPON_SWITCH_PDU) {
-			var incoming_id = recvData[1] - 1;
-			m_manager.participants[incoming_id].weapon = true;
-			OutputLN("WEAPON_SWITCH_PDU ", recvData);
 		}
 	}
 }
