@@ -34,7 +34,7 @@ var curr_level;
 #define SERVER_IP 	"34.67.36.159" 	// Google VM
 // #define SERVER_IP 	"192.168.43.100"	// Raspberry Pi
 #define SERVER_PORT 80					// TCP Port
-var m_session;
+var m_session = Session();
 var m_index;
 var m_system;
 
@@ -74,7 +74,7 @@ function OnInit(params)
 
 	m_manager = Manager(MAX_NUM_PLAYERS);
 	var successfulSignUp = false;
-	m_session = Session();
+	// m_session = Session();
 	m_session.connectTCP(SERVER_IP, SERVER_PORT);
 	m_session.signUp(&successfulSignUp);
 	// TODO: Window for server rejection
@@ -121,7 +121,8 @@ function OnFrame()
 				m_system.moveTrooper(m_manager.participants[i]);
 				m_system.jump(m_manager.participants[i]);
 				m_system.pointOfView(m_manager.participants[i]);
-				m_system.selectWeapon(m_manager.Participants[i]);			
+				m_system.selectWeapon(m_manager.Participants[i]);
+				m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[i]);			
 			}
 
 			m_system.updateTrooper(m_manager.participants[i]);
@@ -151,6 +152,36 @@ function DownloadReady(RequestID)
 function OnTimer()
 {
 	// TODO:
+	var recvData = NULL;
+	m_session.receiveTCP(&recvData);
+	if (recvData != NULL) {
+
+		/* Updating enemies kinematics */
+		OutputLN(recvData);
+		if(recvData[0] == TROOPER_KINEMATICS_PDU) {
+			var incoming_id = recvData[1] - 1;
+			m_manager.participants[incoming_id].m_kinematics.position[0] = recvData[2];
+			m_manager.participants[incoming_id].m_kinematics.position[1] = recvData[3];
+			m_manager.participants[incoming_id].m_kinematics.position[2] = recvData[4];
+			m_manager.participants[incoming_id].m_kinematics.velocity = recvData[5];
+			m_manager.participants[incoming_id].m_kinematics.angle = recvData[7];
+		}
+
+		if(recvData[0] == LIST_RQ_PDU) {
+			var player_name;
+			m_manager.availables += 1;
+
+			m_session.force_receiveTCP(&player_name);
+			m_manager.participants[recvData[2] - 1].tagID.number = recvData[2] - 1;
+			m_manager.participants[recvData[2] - 1].tagID.name = player_name;
+		}
+
+		if(recvData[0] == LIST_RM_PDU) {
+			m_manager.availables += 1;
+			m_manager.participants[recvData[2] - 1].tagID.number = - 1;
+			m_manager.participants[recvData[2] - 1].tagID.name = "";	
+		}
+	}
 }
 
 

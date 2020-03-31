@@ -19,12 +19,16 @@ class System {
 	showScoreTable(j, obj);
 	showMyName(myAlias);
 	collition(obj1, obj2);
+	sendKinematics(kinematics_owner, m_ses, obj);
 };
 
 function System::showMyName(trooper) {
 	ConsoleText(0.43, 0.9, "Welcome Back " + trooper.tagID.name);
 }
 
+function System::sendKinematics(kinematics_owner, m_ses, obj) {
+	m_ses.sendKinematics(kinematics_owner, obj.m_kinematics);
+}
 
 function System::showScoreTable(j, obj) {
 	ConsoleText(0.05, 0.9 - 0.03*j, obj.tagID.name + "'s Score: " + str(obj.m_health.life_points));
@@ -61,8 +65,8 @@ function System::jump(trooper) {
     /* Jump, only if not already jumping*/
 	if(KeyPressed(VK_SPACE) && !trooper.m_kinematics.is_jumping) {
 		trooper.m_kinematics.is_jumping = true;
-		trooper.m_kinematics.vertical_velocity = 4.5;
 		trooper.m_kinematics.just_jumped = true;
+		trooper.m_kinematics.vertical_velocity = 4.5;
 	}
 
     /* If player is jumping, update jump dynamics*/

@@ -6,7 +6,7 @@
 #include "../RenderEntity/DrawableTrooper.s3d"
 #include "../Kinematics/Kinematics.s3d"
 #include "Health.s3d"
-#include "Jump.s3d"
+// #include "Jump.s3d"
 #include "Camera.s3d"
 
 class Myself { // Me

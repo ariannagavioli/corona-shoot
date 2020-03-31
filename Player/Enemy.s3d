@@ -20,7 +20,7 @@ function Enemy::Enemy() {
 	tagID = Identification();
 	weapon = false;
 	drawable = DrawableTrooper();
-	m_kinematics = Kinematics();
+	m_kinematics = PlayerKinematics();
 	m_health = Health();
 }
 

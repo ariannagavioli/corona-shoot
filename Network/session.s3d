@@ -9,7 +9,13 @@ class Session : Network {
 	queryParticipants(players);
 
 	askServerFor(cmd);
+	sendKinematics(kinematics_owner, xyzvel);
 };
+
+function Session::sendKinematics(kinematics_owner, xyzvel) {
+	m_pdu.kinematics(kinematics_owner, xyzvel.position, xyzvel.velocity, xyzvel.angle);	// loads position into PDU
+	sendTCP(m_pdu.msgPosition);
+}
 
 function Session::signUp(success) {
 	// Wait for an ID from server
@@ -42,28 +48,21 @@ function Session::queryParticipants(controller) {
 	// Wait for players' names
 	var p_id;
 	var p_idx;
-	OutputLN();
-	OutputLN("numPlayers ", numPlayers);
-	OutputLN("dataRcv ", dataRcv);
+
 	for (var i = 0; i < numPlayers; i++) {
 		var player_name;
 		force_receiveTCP(&player_name);
 		p_id = dataRcv[2 + i];
 		p_idx = p_id - 1;
-		if (p_id == m_id) {
+		
+		if (p_id == m_id)
 			controller.participants[p_idx] = Myself();
-		} else {
+		else
 			controller.participants[p_idx] = Enemy();
-		}
+
 		controller.participants[p_idx].tagID.number = p_id;
 		controller.participants[p_idx].tagID.name = player_name;
-		OutputLN("id ", m_id, ", p_idx ", p_idx, ", name ", player_name);
-		// players.availability[dataRcv[2] + i - 1] = 1;
-		// players.aliases[dataRcv[2] + i - 1] = player_name;
 	}
-
-	// players.myID = m_id;
-	// players.myAlias = m_badass_name;
 }
 
 function Session::askServerFor(cmd) {

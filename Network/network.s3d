@@ -2,7 +2,7 @@
 
 
 // PDU Definition Data exchange
-#define POSITION_PDU	1
+#define TROOPER_KINEMATICS_PDU	1
 #define MISSILE_PDU		2
 #define EXPLOSION_PDU 	3
 #define WEAPON_PDU		4
@@ -17,7 +17,19 @@ class PDUClass {
 	var msgScore;		// PDU to send score
 	var msgBullet;		// PDU to send bullets
 	var command2;
+	
+	kinematics(pdu_type, pos, vel, angle);	// generate trooper position pdu
 };
+
+function PDUClass::kinematics(pdu_type, pos, vel, angle) {
+	msgPosition[0] = pdu_type;
+	msgPosition[2] = pos[0];
+	msgPosition[3] = pos[1];
+	msgPosition[4] = pos[2];
+	msgPosition[5] = vel;
+	msgPosition[6] = 0;
+	msgPosition[7] = angle;
+}
 
 function PDUClass::PDUClass(id) {
 	// pdu to send a command to the server
@@ -25,8 +37,8 @@ function PDUClass::PDUClass(id) {
 	command2[1] = id;
 
 	// Position PDU
-	msgPosition = vector(7);
-	msgPosition[0] = POSITION_PDU;
+	msgPosition = vector(8);
+	msgPosition[0] = TROOPER_KINEMATICS_PDU;
 	msgPosition[1] = id;
 
 	// Score PDU
@@ -61,6 +73,10 @@ function Network::force_receiveTCP(data) {
 	data = NULL;
 	while(data == NULL)
 		data = NetVarReceiveFromTCP(channel, "");
+}
+
+function Network::receiveTCP(data) {
+	data = NetVarReceiveFromTCP(channel, "");
 }
 
 function Network::sendTCP(data) {
