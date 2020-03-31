@@ -15,6 +15,12 @@ class Kinematics {
 	var step_velocity;
 };
 
+class PlayerKinematics : Kinematics {
+	var is_jumping;
+	var vertical_velocity;
+	var just_jumped;
+};
+
 
 function Kinematics::Kinematics() {
 	/*The values of the constructor can change*/
@@ -24,6 +30,12 @@ function Kinematics::Kinematics() {
 	step_angle = 1.0;
 	velocity = 0;
 	rotation_dir = 0;
+}
+
+function PlayerKinematics::PlayerKinematics() {
+	is_jumping = false;
+	vertical_velocity = 0;
+	just_jumped = false;
 }
 
 #endif
