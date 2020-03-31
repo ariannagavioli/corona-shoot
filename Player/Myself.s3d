@@ -24,9 +24,8 @@ function Myself::Myself() {
 	tagID = Identification();
 	weapon = false;
 	drawable = DrawableTrooper();
-	m_kinematics = Kinematics();
+	m_kinematics = PlayerKinematics();
 	m_health = Health();
-	jumping = Jump();
 	cam = Camera();
 }
 #endif

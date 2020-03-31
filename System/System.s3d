@@ -50,34 +50,39 @@ function System::drawTrooper(trooper) {
 		trooper.drawable.draw(0);
 	
 	trooper.drawable.setPosition(trooper.m_kinematics.position, trooper.m_kinematics.angle);
+	
+	if(trooper.m_kinematics.just_jumped){
+		trooper.drawable.playJump();
+		trooper.m_kinematics.just_jumped = false;
+	}
 }
 
 function System::jump(trooper) {
     /* Jump, only if not already jumping*/
-	if(KeyPressed(VK_SPACE) && !trooper.jumping.is) {
-		trooper.jumping.is = true;
-		trooper.jumping.velocity = 4.45;
-		trooper.jumping.sound.play();
+	if(KeyPressed(VK_SPACE) && !trooper.m_kinematics.is_jumping) {
+		trooper.m_kinematics.is_jumping = true;
+		trooper.m_kinematics.vertical_velocity = 4.5;
+		trooper.m_kinematics.just_jumped = true;
 	}
 
     /* If player is jumping, update jump dynamics*/
-    if(trooper.jumping.is){
+    if(trooper.m_kinematics.is_jumping){
     	trooper.m_kinematics.velocity = trooper.m_kinematics.prev_velocity;
     	/* update_jump(); */
-    	trooper.m_kinematics.position[1] += trooper.jumping.velocity * SYS_DELTA_T;
-		trooper.jumping.velocity -= SYS_GRAVITY * SYS_DELTA_T;
+    	trooper.m_kinematics.position[1] += trooper.m_kinematics.vertical_velocity * SYS_DELTA_T;
+		trooper.m_kinematics.vertical_velocity -= SYS_GRAVITY * SYS_DELTA_T;
 
 		if (trooper.m_kinematics.position[1] <= 0) {
-			trooper.jumping.is = false;
+			trooper.m_kinematics.is_jumping = false;
 			trooper.m_kinematics.position[1] = 0;
 		}
     }
 }
 
 function System::MoveTrooper(trooper) {
-	trooper.m_kinematics.velocity = 0;
 	trooper.m_kinematics.rotation_dir = 0;
 	trooper.m_kinematics.prev_velocity = trooper.m_kinematics.velocity;
+	trooper.m_kinematics.velocity = 0;
 
 	if (KeyPressed("w"))
 		trooper.m_kinematics.velocity = trooper.m_kinematics.step_velocity;
@@ -97,12 +102,15 @@ function System::MoveTrooper(trooper) {
     	trooper.m_kinematics.rotation_dir = 1;
     }	
 
-    trooper.m_kinematics.position[0] += trooper.m_kinematics.velocity * sin(trooper.m_kinematics.angle / 180.0 * PI);	// x-component
-    trooper.m_kinematics.position[2] += trooper.m_kinematics.velocity * cos(trooper.m_kinematics.angle / 180.0 * PI);	// z-component
+//    trooper.m_kinematics.position[0] += trooper.m_kinematics.velocity * sin(trooper.m_kinematics.angle / 180.0 * PI);	// x-component
+//    trooper.m_kinematics.position[2] += trooper.m_kinematics.velocity * cos(trooper.m_kinematics.angle / 180.0 * PI);	// z-component
 }
 
 function System::updateTrooper(trooper) {
-	if (trooper.m_kinematics.velocity != 0) {
+	trooper.m_kinematics.position[0] += trooper.m_kinematics.velocity * sin(trooper.m_kinematics.angle / 180.0 * PI);	// x-component
+    trooper.m_kinematics.position[2] += trooper.m_kinematics.velocity * cos(trooper.m_kinematics.angle / 180.0 * PI);	// z-component
+	
+	if (trooper.m_kinematics.velocity != 0 && !trooper.m_kinematics.is_jumping) {
 		trooper.drawable.frame += 1;
 		trooper.drawable.frame = trooper.drawable.frame % (END_WALK_SWAT - START_WALK_SWAT);
 	}

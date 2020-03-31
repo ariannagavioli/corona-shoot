@@ -10,8 +10,10 @@ class DrawableTrooper {
 	var body;		// DrawablePerson
 	var weapon;		// Weapons
 	var frame;		// frame number to draw
+	var jump_sound;	
 // Methods
 	setPosition(pos, angle);
+	playJump();
 	draw(frame_number);
 };
 
@@ -23,11 +25,17 @@ function DrawableTrooper::DrawableTrooper() {
 	body.addArmament(weapon.railGun.obj);
 	body.addArmament(weapon.rocketLauncher.obj);
 	frame = 0;
+	
+	jump_sound = CVmVRAWav("jump.wav");
 }
 
 function DrawableTrooper::setPosition(pos, angle) {
 	body.setPosition(pos);
 	body.setRotation(angle);
+}
+
+function DrawableTrooper::playJump() {
+	jump_sound.play();
 }
 
 function DrawableTrooper::draw(frame_number) {
