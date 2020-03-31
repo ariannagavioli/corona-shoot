@@ -3,13 +3,13 @@
 #define KINEMATICS_S3D
 
 class Kinematics {
-	var position; 
+	var pos; 
 	
 	var angle;
 	var step_angle;
 	var rotation_dir;
 
-	var velocity;
+	var vel;
 	var prev_velocity;
 
 	var step_velocity;
@@ -25,10 +25,10 @@ class PlayerKinematics : Kinematics {
 function Kinematics::Kinematics() {
 	/*The values of the constructor can change*/
 	angle = 0;
-	position = [2, 0, 2];	// [x, y, z]
+	pos = [2, 0, 2];	// [x, y, z]
 	step_velocity = 0.08;
 	step_angle = 1.0;
-	velocity = 0;
+	vel = 0;
 	rotation_dir = 0;
 }
 

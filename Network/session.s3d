@@ -13,7 +13,7 @@ class Session : Network {
 };
 
 function Session::sendKinematics(kinematics_owner, xyzvel) {
-	m_pdu.kinematics(kinematics_owner, xyzvel.position, xyzvel.velocity, xyzvel.angle);	// loads position into PDU
+	m_pdu.kinematics(kinematics_owner, xyzvel.pos, xyzvel.vel, xyzvel.angle);	// loads position into PDU
 	sendTCP(m_pdu.msgPosition);
 }
 

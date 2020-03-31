@@ -48,12 +48,12 @@ function System::drawTrooper(trooper) {
 		trooper.drawable.weapon.toggle();
 		trooper.weapon = false;
 	} 
-	if (trooper.m_kinematics.velocity != 0)
+	if (trooper.m_kinematics.vel != 0)
 		trooper.drawable.draw(START_WALK_SWAT + trooper.drawable.frame);
 	else 
 		trooper.drawable.draw(0);
 	
-	trooper.drawable.setPosition(trooper.m_kinematics.position, trooper.m_kinematics.angle);
+	trooper.drawable.setPosition(trooper.m_kinematics.pos, trooper.m_kinematics.angle);
 	
 	if(trooper.m_kinematics.just_jumped){
 		trooper.drawable.playJump();
@@ -71,27 +71,27 @@ function System::jump(trooper) {
 
     /* If player is jumping, update jump dynamics*/
     if(trooper.m_kinematics.is_jumping){
-    	trooper.m_kinematics.velocity = trooper.m_kinematics.prev_velocity;
+    	trooper.m_kinematics.vel = trooper.m_kinematics.prev_velocity;
     	/* update_jump(); */
-    	trooper.m_kinematics.position[1] += trooper.m_kinematics.vertical_velocity * SYS_DELTA_T;
+    	trooper.m_kinematics.pos[1] += trooper.m_kinematics.vertical_velocity * SYS_DELTA_T;
 		trooper.m_kinematics.vertical_velocity -= SYS_GRAVITY * SYS_DELTA_T;
 
-		if (trooper.m_kinematics.position[1] <= 0) {
+		if (trooper.m_kinematics.pos[1] <= 0) {
 			trooper.m_kinematics.is_jumping = false;
-			trooper.m_kinematics.position[1] = 0;
+			trooper.m_kinematics.pos[1] = 0;
 		}
     }
 }
 
 function System::MoveTrooper(trooper) {
 	trooper.m_kinematics.rotation_dir = 0;
-	trooper.m_kinematics.prev_velocity = trooper.m_kinematics.velocity;
-	trooper.m_kinematics.velocity = 0;
+	trooper.m_kinematics.prev_velocity = trooper.m_kinematics.vel;
+	trooper.m_kinematics.vel = 0;
 
 	if (KeyPressed("w"))
-		trooper.m_kinematics.velocity = trooper.m_kinematics.step_velocity;
+		trooper.m_kinematics.vel = trooper.m_kinematics.step_velocity;
 	else if (KeyPressed("s"))
-		trooper.m_kinematics.velocity = -trooper.m_kinematics.step_velocity;
+		trooper.m_kinematics.vel = -trooper.m_kinematics.step_velocity;
 
 	if (KeyPressed("d")){
 		trooper.m_kinematics.angle -= trooper.m_kinematics.step_angle;
@@ -106,15 +106,15 @@ function System::MoveTrooper(trooper) {
     	trooper.m_kinematics.rotation_dir = 1;
     }	
 
-//    trooper.m_kinematics.position[0] += trooper.m_kinematics.velocity * sin(trooper.m_kinematics.angle / 180.0 * PI);	// x-component
-//    trooper.m_kinematics.position[2] += trooper.m_kinematics.velocity * cos(trooper.m_kinematics.angle / 180.0 * PI);	// z-component
+//    trooper.m_kinematics.pos[0] += trooper.m_kinematics.vel * sin(trooper.m_kinematics.angle / 180.0 * PI);	// x-component
+//    trooper.m_kinematics.pos[2] += trooper.m_kinematics.vel * cos(trooper.m_kinematics.angle / 180.0 * PI);	// z-component
 }
 
 function System::updateTrooper(trooper) {
-	trooper.m_kinematics.position[0] += trooper.m_kinematics.velocity * sin(trooper.m_kinematics.angle / 180.0 * PI);	// x-component
-    trooper.m_kinematics.position[2] += trooper.m_kinematics.velocity * cos(trooper.m_kinematics.angle / 180.0 * PI);	// z-component
+	trooper.m_kinematics.pos[0] += trooper.m_kinematics.vel * sin(trooper.m_kinematics.angle / 180.0 * PI);	// x-component
+    trooper.m_kinematics.pos[2] += trooper.m_kinematics.vel * cos(trooper.m_kinematics.angle / 180.0 * PI);	// z-component
 	
-	if (trooper.m_kinematics.velocity != 0 && !trooper.m_kinematics.is_jumping) {
+	if (trooper.m_kinematics.vel != 0 && !trooper.m_kinematics.is_jumping) {
 		trooper.drawable.frame += 1;
 		trooper.drawable.frame = trooper.drawable.frame % (END_WALK_SWAT - START_WALK_SWAT);
 	}
@@ -131,7 +131,7 @@ function System::pointOfView(obj) {
 
 	/* 1st Person */
 	if (obj.cam.view) {	
-		obj.cam.position = obj.m_kinematics.position + [0, 1.3, 0];		//Camera position = player position with a height offset from the ground
+		obj.cam.pos = obj.m_kinematics.pos + [0, 1.3, 0];		//Camera position = player position with a height offset from the ground
 		obj.cam.angle = obj.m_kinematics.angle + 180.0;
 		obj.cam.angle = obj.cam.angle % 360;			
 		obj.cam.cam.setRotation(obj.cam.angle, [0,-1,0]);				//Rotate the camera accordingly to the player rotation
@@ -144,12 +144,12 @@ function System::pointOfView(obj) {
 		if(keyPressed(VK_DOWN) && obj.cam.offset < MAX_CAM_OFFSET)		//Distantiating from the trooper
 			obj.cam.offset += 0.1;
 		
-		obj.cam.position[0] = obj.m_kinematics.position[0] - obj.cam.offset * sin(obj.m_kinematics.angle * PI / 180.0);
-		obj.cam.position[1] = obj.m_kinematics.position[1] + 2;
-		obj.cam.position[2] = obj.m_kinematics.position[2] - obj.cam.offset * cos(obj.m_kinematics.angle * PI / 180.0);
-		obj.cam.cam.setTarget(obj.m_kinematics.position + [0, 1.3, 0]);
+		obj.cam.pos[0] = obj.m_kinematics.pos[0] - obj.cam.offset * sin(obj.m_kinematics.angle * PI / 180.0);
+		obj.cam.pos[1] = obj.m_kinematics.pos[1] + 2;
+		obj.cam.pos[2] = obj.m_kinematics.pos[2] - obj.cam.offset * cos(obj.m_kinematics.angle * PI / 180.0);
+		obj.cam.cam.setTarget(obj.m_kinematics.pos + [0, 1.3, 0]);
 	}
-	obj.cam.cam.setPosition(obj.cam.position);
+	obj.cam.cam.setPosition(obj.cam.pos);
 }
 
 #endif

@@ -160,10 +160,10 @@ function OnTimer()
 		// OutputLN(recvData);
 		if(recvData[0] == TROOPER_KINEMATICS_PDU) {
 			var incoming_id = recvData[1] - 1;
-			m_manager.participants[incoming_id].m_kinematics.position[0] = recvData[2];
-			m_manager.participants[incoming_id].m_kinematics.position[1] = recvData[3];
-			m_manager.participants[incoming_id].m_kinematics.position[2] = recvData[4];
-			m_manager.participants[incoming_id].m_kinematics.velocity = recvData[5];
+			m_manager.participants[incoming_id].m_kinematics.pos[0] = recvData[2];
+			m_manager.participants[incoming_id].m_kinematics.pos[1] = recvData[3];
+			m_manager.participants[incoming_id].m_kinematics.pos[2] = recvData[4];
+			m_manager.participants[incoming_id].m_kinematics.vel = recvData[5];
 			m_manager.participants[incoming_id].m_kinematics.angle = recvData[7];
 		}
 
