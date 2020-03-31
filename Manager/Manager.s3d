@@ -5,6 +5,9 @@ class Manager {
 	var total;			// Total number of players
 	var participants;	// Either Enemy() or Myself()
 	var availables;		// Number of current Players
+
+	addParticipant(num, name);
+	rmParticipant(num);
 };
 
 function Manager::Manager(numPlayers) {
@@ -13,6 +16,18 @@ function Manager::Manager(numPlayers) {
 	for (var i = 0; i < numPlayers; ++i)
 		participants[i] = Enemy();
 	availables = 0;
+}
+
+function Manager::addParticipant(num, name) {
+	availables += 1;
+	participants[num - 1].tagID.number = num;
+	participants[num - 1].tagID.name = name;
+}
+
+function Manager::rmParticipant(num) {
+	availables -= 1;
+	participants[num - 1].tagID.number = - 1;
+	participants[num - 1].tagID.name = "";
 }
 
 #endif

@@ -157,7 +157,7 @@ function OnTimer()
 	if (recvData != NULL) {
 
 		/* Updating enemies kinematics */
-		OutputLN(recvData);
+		// OutputLN(recvData);
 		if(recvData[0] == TROOPER_KINEMATICS_PDU) {
 			var incoming_id = recvData[1] - 1;
 			m_manager.participants[incoming_id].m_kinematics.position[0] = recvData[2];
@@ -168,18 +168,13 @@ function OnTimer()
 		}
 
 		if(recvData[0] == LIST_RQ_PDU) {
-			var player_name;
-			m_manager.availables += 1;
-
-			m_session.force_receiveTCP(&player_name);
-			m_manager.participants[recvData[2] - 1].tagID.number = recvData[2] - 1;
-			m_manager.participants[recvData[2] - 1].tagID.name = player_name;
+			var name;
+			m_session.force_receiveTCP(&name);
+			m_manager.addParticipant(recvData[2], name);
 		}
 
 		if(recvData[0] == LIST_RM_PDU) {
-			m_manager.availables += 1;
-			m_manager.participants[recvData[2] - 1].tagID.number = - 1;
-			m_manager.participants[recvData[2] - 1].tagID.name = "";	
+			m_manager.rmParticipant(recvData[2]);
 		}
 	}
 }
