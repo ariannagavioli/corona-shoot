@@ -84,7 +84,7 @@ function OnInit(params)
 		// TODO: OutputLN("Server full");
 	// TODO: }
 	m_index = m_session.m_id - 1;
-	m_manager.participants[m_index].drawable.setPosition([2, 0, 2], 0);
+	m_manager.participants[m_index].initialSpawn(curr_level.matrix);
 }
 
 
