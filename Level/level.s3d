@@ -21,6 +21,9 @@ class level {
 	var num_rows;
 	var num_columns;
 	
+	/* Maze matrix */
+	var matrix;
+	
 	init(level_textfile);
 	draw();
 };
@@ -45,10 +48,15 @@ function level::init(level_textfile){
 	num_rows = len(f);
 	num_columns = len(f[0]);
 	
+	matrix = Array(num_rows);
+	
 	for(var i=0; i< num_rows; i++)
 	{
+		matrix[i] = Array(num_columns);
 		for(var j=0; j< num_columns; j++)
 		{
+			matrix[i][j] = f[i][j];
+			
 			if (f[i][j] == "*")
 			{
 				var t = CVmObj(wall_mesh);
@@ -60,7 +68,8 @@ function level::init(level_textfile){
 				var t = CVmObj(lower_wall_mesh);
 				t.SetPosition(j,0,i);
 				aadd(wall_obj_array,t);
-			}			
+			}
+			matrix[i][j] = f[i][j];		
 		}
 	}	
 	

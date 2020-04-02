@@ -18,6 +18,8 @@ class Myself { // Me
 	var m_health;
 	var jumping;
 	var cam;
+	
+	initialSpawn(matrix);
 };
 
 function Myself::Myself() {
@@ -28,4 +30,28 @@ function Myself::Myself() {
 	m_health = Health();
 	cam = Camera();
 }
+
+function Myself::initialSpawn(matrix) {
+	var x;
+	var z;
+	var angle;
+	
+	x = Rand(len(matrix[0]));
+	z = Rand(len(matrix));
+	
+	while(matrix[z][x] != " "){		// The spot is taken by a wall
+		x = Rand(len(matrix[0]));
+		z = Rand(len(matrix));
+	}
+	
+	angle = Rand(3);
+	angle *= 90;					// either 0°, 90*, 180° or 270°
+	
+	drawable.setPosition(x, 0, z);
+	
+	
+	m_kinematics.pos = [x, 0, z];
+	m_kinematics.angle = angle;
+}
+
 #endif
