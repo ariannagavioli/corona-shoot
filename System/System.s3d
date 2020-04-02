@@ -66,7 +66,7 @@ function System::drawTrooper(trooper) {
 	trooper.drawable.setPosition(trooper.m_kinematics.pos, trooper.m_kinematics.angle);
 	
 	if(trooper.m_kinematics.just_jumped){
-		trooper.drawable.playJump();
+		trooper.drawable.playJump(trooper.m_kinematics);
 		trooper.m_kinematics.just_jumped = false;
 	}
 }

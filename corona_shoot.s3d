@@ -167,7 +167,7 @@ function OnTimer()
 			m_manager.participants[incoming_id].m_kinematics.angle = recvData[7];
 		}
 
-		/* Switch weapons of the enemies */
+		/* Switch enemy's weapon */
 		if(recvData[0] == WEAPON_SWITCH_PDU) {
 			var incoming_id = recvData[1] - 1;
 			m_manager.participants[incoming_id].weapon = true;
