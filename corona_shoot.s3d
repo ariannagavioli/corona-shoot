@@ -48,7 +48,7 @@ function OnDownload()
 	// Download resources here;
 	FileDownload("XVRResources.zip");
 }
-var backgroundShooting;
+
 function OnInit(params)
 {
 	/* initialize camera */
@@ -85,7 +85,6 @@ function OnInit(params)
 	// TODO: }
 	m_index = m_session.m_id - 1;
 	m_manager.participants[m_index].initialSpawn(curr_level.matrix);
-	backgroundShooting = CVmVRAWav("shooting_background44k.wav");
 }
 
 
@@ -137,10 +136,6 @@ function OnFrame()
 	// // Draw all Participants
 	// // playerCluster.drawEmAll();	
 	// curr_player.draw();
-	if(!backgroundShooting.isPlaying()) {
-		OutputLN("it's not playing");
-		backgroundShooting.play();
-	}
 	SceneEnd();
 }
 
