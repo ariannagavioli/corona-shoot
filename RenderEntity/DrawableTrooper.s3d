@@ -13,7 +13,7 @@ class DrawableTrooper {
 	var jump_sound;	
 // Methods
 	setPosition(pos, angle);
-	playJump(listener);
+	playJump(source, listener);
 	draw(frame_number);
 };
 
@@ -39,11 +39,11 @@ function triangularF(angle) {
 	var balance;
 
 	if (angle > (PI/2.0)) {
-		balance = (-2.0 * angle / PI + 2.0);
+		balance = (2.0 * angle / PI - 2.0);
 	} else if (angle < -(PI / 2.0)) {
-		balance = (-2.0 * angle / PI - 2.0);  
+		balance = (2.0 * angle / PI + 2.0);  
 	} else {
-		balance = (2.0 * angle / PI);
+		balance = (-2.0 * angle / PI);
 	}
 
 	return balance;
@@ -57,17 +57,22 @@ function rerangeD(angle) {
 	return angle;
 }
 
-function DrawableTrooper::playJump(listener) {
+function DrawableTrooper::playJump(source, listener) {
 	var sourceDistance;
-	var source = [55.0, 0.0, 15.0];
-	var SL = source - listener.pos;
-	var theta = atan2(SL[0], SL[2]);
-	var anglePiPi = rerangeD(listener.angle);
+	var SL = source.pos - listener.pos;
 	sourceDistance = modulus(SL);
-	jump_sound.setBalance(sin(theta - anglePiPi * PI / 180.0));
-	// jump_sound.setBalance(triangularF(theta - anglePiPi * PI / 180.0));
-	jump_sound.setVolume(1 - sourceDistance/180);
-	OutputLN(listener.pos);
+
+	if (sourceDistance == 0) {
+		jump_sound.setBalance(0);		
+		jump_sound.setVolume(1);		
+	} else {	
+		var theta = atan2(SL[0], SL[2]);
+		var anglePiPi = rerangeD(listener.angle);
+
+		jump_sound.setBalance(-sin(theta - anglePiPi * PI / 180.0));
+		// jump_sound.setBalance(triangularF(theta - anglePiPi * PI / 180.0));
+		jump_sound.setVolume(1 - sourceDistance/180);
+	}
 	jump_sound.play();
 }
 

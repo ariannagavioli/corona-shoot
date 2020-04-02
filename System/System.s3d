@@ -10,7 +10,7 @@
 
 class System {
 // System components
-	drawTrooper(trooper);
+	drawTrooper(trooper, me);
 	jump(trooper);
 	updateTrooper(trooper);
 	MoveTrooper(obj);
@@ -21,6 +21,7 @@ class System {
 	collition(obj1, obj2);
 	sendKinematics(kinematics_owner, m_ses, obj);
 	sendEvent(m_ses, obj);
+
 };
 
 function System::sendEvent(m_ses, trooper) {
@@ -53,7 +54,7 @@ function System::selectWeapon(trooper) {
 	pressed = pressed2;
 }
 
-function System::drawTrooper(trooper) {
+function System::drawTrooper(trooper, me) {
 	if (trooper.weapon) {
 		trooper.drawable.weapon.toggle();
 		trooper.weapon = false;
@@ -66,7 +67,7 @@ function System::drawTrooper(trooper) {
 	trooper.drawable.setPosition(trooper.m_kinematics.pos, trooper.m_kinematics.angle);
 	
 	if(trooper.m_kinematics.just_jumped){
-		trooper.drawable.playJump(trooper.m_kinematics);
+		trooper.drawable.playJump(trooper.m_kinematics, me.m_kinematics);
 		trooper.m_kinematics.just_jumped = false;
 	}
 }

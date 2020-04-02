@@ -36,12 +36,12 @@ function Myself::initialSpawn(matrix) {
 	var z;
 	var angle;
 	
-	x = Rand(len(matrix[0]));
-	z = Rand(len(matrix));
+	x = Rand(len(matrix[0]) - 1); 
+	z = Rand(len(matrix) - 1);
 	
-	while(matrix[z][x] != " "){		// The spot is taken by a wall
-		x = Rand(len(matrix[0]));
-		z = Rand(len(matrix));
+	while(matrix[z][x] != " ") {	// The spot is taken by a wall
+		x = Rand(len(matrix[0]) - 1);
+		z = Rand(len(matrix) - 1);
 	}
 	
 	angle = Rand(3);
