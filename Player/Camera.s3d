@@ -15,6 +15,6 @@ function Camera::Camera() {
 	angle = 180;
 	view = false;
 	cam = CameraGetCurrent();
-	offset = 3;
+	offset = 2;
 }
 #endif
