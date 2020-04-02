@@ -1,5 +1,7 @@
 /* Level class */
 class level {
+	var Light0;
+	
 	/* Walls */
 	var wall_mesh;
 	var lower_wall_mesh;
@@ -25,6 +27,7 @@ class level {
 	var matrix;
 	
 	init(level_textfile);
+	setRandomPosition(obj);
 	draw();
 };
 
@@ -48,11 +51,15 @@ function level::init(level_textfile){
 	num_rows = len(f);
 	num_columns = len(f[0]);
 	
+	trace(num_rows);
+	trace(num_columns);
+	
 	matrix = Array(num_rows);
 	
 	for(var i=0; i< num_rows; i++)
 	{
 		matrix[i] = Array(num_columns);
+		
 		for(var j=0; j< num_columns; j++)
 		{
 			matrix[i][j] = f[i][j];
@@ -73,6 +80,12 @@ function level::init(level_textfile){
 		}
 	}	
 	
+	/* initialize light */
+	Light0 = CVmLight();
+	Light0.SetPosition([num_columns / 2.0, 60, num_rows / 2.0]);
+	Light0.SetDiffuse(1, 1, 1);
+	Light0.Enable();
+	
 	floor_material = CVmMaterial();
 	floor_texture  = CVMtexture("grass.jpg");
 	floor_material.SetTexture(floor_texture);
@@ -89,6 +102,25 @@ function level::init(level_textfile){
 	sky_mesh = CVmNewMesh("sky.AAM");
 	sky_mesh.scale(num_rows*1.5, 1, num_columns*1.5);
 	sky_mesh.translate(num_rows / 2.0, 0 , num_columns / 2.0);
+}
+
+function level::setRandomPosition(obj){
+	var x;
+	var z;
+	var angle;
+	
+	x = Rand(len(matrix[0]) - 1);
+	z = Rand(len(matrix) - 1);
+	
+	while(matrix[z][x] != " "){		// The spot is taken by a wall
+		x = Rand(len(matrix[0]) - 1);
+		z = Rand(len(matrix) - 1);
+	}
+	
+	angle = Rand(3);
+	angle *= 90;					// either 0°, 90*, 180° or 270°
+	
+	obj.setPosition([x, 0, z],angle);
 }
 
 function level::draw(){

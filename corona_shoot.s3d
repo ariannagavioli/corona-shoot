@@ -18,7 +18,7 @@ var CamPos = [0.0, 5.0, 30.0]; 	// camera position
 
 /* Light globals */
 var Light0;
-var PosL = [0.0, 10.0, 10.0];	// default light position
+//var PosL = [0.0, 10.0, 10.0];	// default light position
 
 
 /* Function declarations */
@@ -51,13 +51,7 @@ function OnDownload()
 function OnInit(params)
 {
 	/* initialize camera */
-	CameraGetCurrent().SetPosition(CamPos);
-
-	/* initialize light */
-	Light0 = CVmLight();
-	Light0.SetPosition(PosL);
-	Light0.SetDiffuse(1, 1, 1);
-	Light0.Enable();	
+	CameraGetCurrent().SetPosition(CamPos);	
 
 	// Our initializations
 	
@@ -84,7 +78,9 @@ function OnInit(params)
 		// TODO: OutputLN("Server full");
 	// TODO: }
 	m_index = m_session.m_id - 1;
-	m_manager.participants[m_index].initialSpawn(curr_level.matrix);
+	
+	/* Randomly spawn the current player in the maze */
+	curr_level.setRandomPosition(m_manager.participants[m_index]);
 }
 
 

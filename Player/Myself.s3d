@@ -6,7 +6,6 @@
 #include "../RenderEntity/DrawableTrooper.s3d"
 #include "../Kinematics/Kinematics.s3d"
 #include "Health.s3d"
-// #include "Jump.s3d"
 #include "Camera.s3d"
 
 class Myself { // Me
@@ -19,7 +18,7 @@ class Myself { // Me
 	var jumping;
 	var cam;
 	
-	initialSpawn(matrix);
+	setPosition(pos, angle);
 };
 
 function Myself::Myself() {
@@ -31,26 +30,11 @@ function Myself::Myself() {
 	cam = Camera();
 }
 
-function Myself::initialSpawn(matrix) {
-	var x;
-	var z;
-	var angle;
+function Myself::setPosition(pos, angle) {
 	
-	x = Rand(len(matrix[0]));
-	z = Rand(len(matrix));
+	drawable.setPosition(pos);
 	
-	while(matrix[z][x] != " "){		// The spot is taken by a wall
-		x = Rand(len(matrix[0]));
-		z = Rand(len(matrix));
-	}
-	
-	angle = Rand(3);
-	angle *= 90;					// either 0°, 90*, 180° or 270°
-	
-	drawable.setPosition(x, 0, z);
-	
-	
-	m_kinematics.pos = [x, 0, z];
+	m_kinematics.pos = pos;
 	m_kinematics.angle = angle;
 }
 
