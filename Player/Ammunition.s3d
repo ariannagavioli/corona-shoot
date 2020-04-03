@@ -3,6 +3,9 @@
 
 #include "../Kinematics/Kinematics.s3d"
 
+#define MAX_RAILGUN_AMMO 36;
+#define MAX_ROCKETLAUNCHER_AMMO 12;
+
 class AmmoKinematics : Kinematics {
 	var orientation;
 };
@@ -14,13 +17,17 @@ function AmmoKinematics::AmmoKinematics() {
 class Ammunition {
 	var m_kinematics;
 	var life;
-	var type;	
+	var type;
+	var RailGunAmmo;
+	var rocketLauncherAmmo;
 };
 
 function Ammunition::Ammunition() {
 	m_kinematics = AmmoKinematics();
 	life = 0;
-	type = 0;		
+	type = 0;
+	RailGunAmmo = 36;
+	rocketLauncherAmmo = 12;
 }
 
 #endif
