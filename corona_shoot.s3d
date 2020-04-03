@@ -114,11 +114,15 @@ function OnFrame()
 			if (i == m_index) {
 				m_system.showMyName(m_manager.participants[i]); 
 
+				/*Human Interaction*/
 				m_system.moveTrooper(m_manager.participants[i]);
 				m_system.jump(m_manager.participants[i]);
 				m_system.pointOfView(m_manager.participants[i]);
 				m_system.selectWeapon(m_manager.Participants[i]);
-				m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[i]);			
+				m_system.shoot(m_manager.Participants[i]);
+				/* Network */
+				m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[i].m_kinematics);			
+				m_system.sendKinematics(SHOT_AMMO_PDU, &m_session, m_manager.Participants[i].ammo.m_kinematics);			
 				m_system.sendEvent(&m_session, m_manager.Participants[i]);
 			}
 
@@ -165,6 +169,15 @@ function OnTimer()
 		if(recvData[0] == WEAPON_SWITCH_PDU) {
 			var incoming_id = recvData[1] - 1;
 			m_manager.participants[incoming_id].weapon = true;
+		}
+
+		/* Enemy's shoot */ 
+		if(recvData[0] == SHOT_AMMO_PDU) {
+			var incoming_id = recvData[1] - 1;
+			m_manager.participants[incoming_id].ammo.m_kinematics.pos[0] = recvData[2];
+			m_manager.participants[incoming_id].ammo.m_kinematics.pos[1] = recvData[3];
+			m_manager.participants[incoming_id].ammo.m_kinematics.pos[2] = recvData[4];
+			m_manager.participants[incoming_id].ammo.life = 100;
 		}
 
 		/* Jumped event on the enemies */

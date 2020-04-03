@@ -6,8 +6,8 @@
 #include "../RenderEntity/DrawableTrooper.s3d"
 #include "../Kinematics/Kinematics.s3d"
 #include "Health.s3d"
-// #include "Jump.s3d"
 #include "Camera.s3d"
+#include "Ammunition.s3d"
 
 class Myself { // Me
 // Entity - Components 
@@ -18,7 +18,8 @@ class Myself { // Me
 	var m_health;
 	var jumping;
 	var cam;
-	
+	var ammo;
+// Methods
 	setPosition(pos, angle);
 };
 
@@ -29,6 +30,7 @@ function Myself::Myself() {
 	m_kinematics = PlayerKinematics();
 	m_health = Health();
 	cam = Camera();
+	ammo = Ammunition();
 }
 
 function Myself::setPosition(pos, angle) {

@@ -3,7 +3,7 @@
 
 // PDU Definition Data exchange
 #define TROOPER_KINEMATICS_PDU	1
-#define MISSILE_PDU				2
+#define SHOT_AMMO_PDU			2
 #define EXPLOSION_PDU 			3
 #define WEAPON_PDU				4
 #define WEAPON_SWITCH_PDU		5

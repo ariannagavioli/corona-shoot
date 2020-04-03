@@ -1,0 +1,26 @@
+#ifndef AMMUNITION_S3D
+#define AMMUNITION_S3D
+
+#include "../Kinematics/Kinematics.s3d"
+
+class AmmoKinematics : Kinematics {
+	var orientation;
+};
+
+function AmmoKinematics::AmmoKinematics() {
+	orientation = [0, 0, 0];
+}
+
+class Ammunition {
+	var m_kinematics;
+	var life;
+	var type;	
+};
+
+function Ammunition::Ammunition() {
+	m_kinematics = AmmoKinematics();
+	life = 0;
+	type = 0;		
+}
+
+#endif
