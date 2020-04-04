@@ -4,16 +4,21 @@
 
 #include "../Player/Enemy.s3d"
 #include "../Player/Myself.s3d"
+#include "../Audio/AudioFXSystem.s3d"
 
 #define SYS_GRAVITY			9.8
 #define SYS_DELTA_T			1.0 / 60
 
 class System {
 // System components
+	var audioFX;
+	/* Render actions */
 	drawTrooper(trooper, me);
 	updateTrooper(trooper);
 	showScoreTable(j, obj);
 	showMyName(myAlias);
+
+	/* collisions */
 	collition(obj1, obj2);
 
 	/* Human interaction */
@@ -23,11 +28,14 @@ class System {
 	selectWeapon(obj);
 	shoot(trooper);	
 
-	/*Sending */
+	/* Network */
 	sendKinematics(kinematics_owner, m_ses, obj);
 	sendEvent(m_ses, obj);
-
 };
+
+function System::System() {
+	audioFX = AudioFXSystem();
+}
 
 function System::shoot(trooper) {
 
@@ -82,21 +90,26 @@ function System::drawTrooper(trooper, me) {
 		trooper.drawable.weapon.toggle();
 		trooper.weapon = false;
 	} 
-	if (trooper.m_kinematics.vel != 0)
+	if (trooper.m_kinematics.vel != 0) {
 		trooper.drawable.draw(START_WALK_SWAT + trooper.drawable.frame);
+		// audioFX.playSteps(trooper.m_kinematics, me.m_kinematics);
+	}
 	else 
 		trooper.drawable.draw(0);
 	
 	trooper.drawable.setPosition(trooper.m_kinematics.pos, trooper.m_kinematics.angle);
 	
-	if(trooper.m_kinematics.just_jumped){
-		trooper.drawable.playJump(trooper.m_kinematics, me.m_kinematics);
+	if(trooper.m_kinematics.just_jumped) {
+		audioFX.playJump(trooper.m_kinematics, me.m_kinematics);
 		trooper.m_kinematics.just_jumped = false;
 	}
 
 	if(trooper.ammo.life > 0) {
 		trooper.ammo.life--;
 		trooper.ammo.m_kinematics.pos += trooper.ammo.m_kinematics.orientation*0.05;
+		if(trooper.ammo.life == 99) {
+			audioFX.playShoot(trooper.m_kinematics, me.m_kinematics);
+		}
 
 		glPushMatrix();
 			glTranslate(trooper.ammo.m_kinematics.pos);

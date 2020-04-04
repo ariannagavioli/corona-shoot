@@ -1,0 +1,47 @@
+#ifndef AMBIENT_SND_FX_S3D
+#define AMBIENT_SND_FX_S3D
+
+#define SHOOTIN_BKG_FX	"shooting_background44k.wav"
+#define MUSIC_FX		"cleric_path.wav"
+
+class AmbientSoundFx {
+	/* Static Parameters */
+	var file;
+	var volume;
+	var t_len;
+	/* Dynamic Parameters */
+	var begin;
+};
+
+function AmbientSoundFx::AmbientSoundFx(file_, t_len_, vol_) {
+	file = file_;
+	volume = vol_;
+	t_len = t_len_;
+	begin = -t_len;
+}
+
+class AmbientSoundFxManager {
+	var fx;
+	var length;
+	var current_time;
+
+	isFinished(i);
+};
+
+function AmbientSoundFxManager::AmbientSoundFxManager() {
+	length = 2;
+	fx = array(length);
+	fx[0] = AmbientSoundFx(SHOOTIN_BKG_FX, 78427, 0.9);
+	fx[1] = AmbientSoundFx(MUSIC_FX, 157263, 0.8);
+}
+
+function AmbientSoundFxManager::isFinished(i) {
+	current_time = GetTime();
+	if ((current_time - fx[i].begin) > fx[i].t_len) {
+		fx[i].begin = current_time;
+		return true;	
+	}
+	return false;
+}
+
+#endif

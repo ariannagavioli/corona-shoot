@@ -10,10 +10,11 @@ class DrawableTrooper {
 	var body;		// DrawablePerson
 	var weapon;		// Weapons
 	var frame;		// frame number to draw
+	var obj_sound;
 	var jump_sound;	
+	var shoot_sound;
 // Methods
 	setPosition(pos, angle);
-	playJump(source, listener);
 	draw(frame_number);
 };
 
@@ -26,54 +27,11 @@ function DrawableTrooper::DrawableTrooper() {
 	body.addArmament(weapon.rocketLauncher.obj);
 	frame = 0;
 	
-	jump_sound = CVmVRAWav("jump.wav");
 }
 
 function DrawableTrooper::setPosition(pos, angle) {
 	body.setPosition(pos);
 	body.setRotation(angle);
-}
-
-
-function triangularF(angle) {
-	var balance;
-
-	if (angle > (PI/2.0)) {
-		balance = (2.0 * angle / PI - 2.0);
-	} else if (angle < -(PI / 2.0)) {
-		balance = (2.0 * angle / PI + 2.0);  
-	} else {
-		balance = (-2.0 * angle / PI);
-	}
-
-	return balance;
-}
-
-function rerangeD(angle) {
-	if (angle > 180.0)
-		return (angle - 360);
-	else if (angle < -180.0)
-		return (angle + 360);
-	return angle;
-}
-
-function DrawableTrooper::playJump(source, listener) {
-	var sourceDistance;
-	var SL = source.pos - listener.pos;
-	sourceDistance = modulus(SL);
-
-	if (sourceDistance == 0) {
-		jump_sound.setBalance(0);		
-		jump_sound.setVolume(1);		
-	} else {	
-		var theta = atan2(SL[0], SL[2]);
-		var anglePiPi = rerangeD(listener.angle);
-
-		jump_sound.setBalance(-sin(theta - anglePiPi * PI / 180.0));
-		// jump_sound.setBalance(triangularF(theta - anglePiPi * PI / 180.0));
-		jump_sound.setVolume(1 - sourceDistance/180);
-	}
-	jump_sound.play();
 }
 
 function DrawableTrooper::draw(frame_number) {

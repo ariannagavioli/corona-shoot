@@ -1,0 +1,101 @@
+#ifndef AUDIO_FX_SYSTEM_S3D
+#define AUDIO_FX_SYSTEM_S3D
+
+#include "AmbientSoundFX.s3d"
+
+#define JUMP_SCREAMS	"jump.wav"
+#define STEP_SND_FX		"step.wav"
+#define SHOOT_SND_FX	"shoot2.wav"
+
+class AudioFXSystem {
+	/* Entities */
+	var snd;
+	var AmbientManager;
+
+	/* System externals interfaces */
+	playJump(source, listener);
+	playShoot(source, listener);
+	playSteps(source, listener);
+	playAmbient();
+
+	/* System Internals interfaces */
+	playDirectionalSound(sndfx, source, listener);
+};
+
+function AudioFXSystem::AudioFXSystem() {
+	snd = CVmVRAWav();
+
+	AmbientManager = AmbientSoundFxManager();
+
+}
+/* utilities functions */
+function triangularF(angle) {
+	var balance;
+
+	if (angle > (PI/2.0)) {
+		balance = (2.0 * angle / PI - 2.0);
+	} else if (angle < -(PI / 2.0)) {
+		balance = (2.0 * angle / PI + 2.0);  
+	} else {
+		balance = (-2.0 * angle / PI);
+	}
+
+	return balance;
+}
+
+function rerangeD(angle) {
+	if (angle > 180.0)
+		return (angle - 360);
+	else if (angle < -180.0)
+		return (angle + 360);
+	return angle;
+}
+/* end utiliti functions */
+
+function AudioFXSystem::playDirectionalSound(sndfx, source, listener) {
+	// This is an emulation of what sound really
+	// is by balancing the channels output.
+	var sourceDistance;
+	var SL = source.pos - listener.pos;
+	
+	sourceDistance = modulus(SL);
+	snd.load(sndfx);
+
+	if (sourceDistance == 0) {
+		snd.setBalance(0);		
+		snd.setVolume(1);		
+	} else {	
+		var theta = atan2(SL[0], SL[2]);
+		var anglePiPi = rerangeD(listener.angle);
+
+		snd.setBalance(-sin(theta - anglePiPi * PI / 180.0));
+		// snd.setBalance(triangularF(theta - anglePiPi * PI / 180.0));
+		snd.setVolume(1 - sourceDistance/180);
+	}
+	snd.play(false);	
+}
+
+function AudioFXSystem::playSteps(source, listener) {
+	playDirectionalSound(STEP_SND_FX, source, listener);
+}
+
+function AudioFXSystem::playJump(source, listener) {
+	playDirectionalSound(JUMP_SCREAMS, source, listener);
+}
+
+function AudioFXSystem::playShoot(source, listener) {
+	playDirectionalSound(SHOOT_SND_FX, source, listener);
+}
+
+function AudioFXSystem::playAmbient() {
+
+	for (var i = 0; i < AmbientManager.length; ++i) {
+		if (AmbientManager.isFinished(i)) {
+			snd.load(AmbientManager.fx[i].file);
+			snd.setVolume(AmbientManager.fx[i].volume);
+			snd.play();
+		}
+	}
+}
+
+#endif

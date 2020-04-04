@@ -81,6 +81,7 @@ function OnInit(params)
 	
 	/* Randomly spawn the current player in the maze */
 	curr_level.setRandomPosition(m_manager.participants[m_index]);
+	m_system.audioFX.playAmbient();
 }
 
 
@@ -93,7 +94,6 @@ function OnFrame()
 	SceneBegin();
 
 	DrawGrid([0.5, 0.5, 0.5], 100);
-	
 	/* Debug camera view */
 	// if(keypressed(VK_LCONTROL)){
 	// 	curr_player.debug_mode();
@@ -137,6 +137,7 @@ function OnFrame()
 	// // playerCluster.drawEmAll();	
 	// curr_player.draw();
 	SceneEnd();
+	m_system.audioFX.playAmbient();
 }
 
 
