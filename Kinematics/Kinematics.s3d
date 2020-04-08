@@ -7,7 +7,6 @@ class Kinematics {
 	
 	var angle;
 	var step_angle;
-	var rotation_dir;
 
 	var vel;
 	var prev_velocity;
@@ -29,7 +28,6 @@ function Kinematics::Kinematics() {
 	step_velocity = 0.08;
 	step_angle = 1.0;
 	vel = 0;
-	rotation_dir = 0;
 }
 
 function PlayerKinematics::PlayerKinematics() {

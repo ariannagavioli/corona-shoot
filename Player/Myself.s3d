@@ -19,8 +19,10 @@ class Myself { // Me
 	var jumping;
 	var cam;
 	var ammo;
+	var boundRay;
 // Methods
 	setPosition(pos, angle);
+	getBoundingRay();
 };
 
 function Myself::Myself() {
@@ -31,11 +33,47 @@ function Myself::Myself() {
 	m_health = Health();
 	cam = Camera();
 	ammo = Ammunition();
+	
+	var boundPoints = Array(4);			//Bounding pointss is composed by 4 3-d points
+	var LocalBB = Array(4);				//Bounding pointss is composed by 4 3-d points
+	for(var i = 0; i < 4; i++) {
+		boundPoints[i] = Array(3);
+		LocalBB[i] = Array(3);
+	}
+	var boundingBox;
+	boundingBox = drawable.body.lowerBody.mesh.getBoundingBox();
+	
+	/* min_x, min_y, min_z, max_x, max_y, max_z
+	 * We only take in consideration the points with min_y
+	 */
+	LocalBB[0] = [boundingBox[0], boundingBox[1], boundingBox[2]];
+	LocalBB[1] = [boundingBox[0], boundingBox[1], boundingBox[5]];
+	LocalBB[2] = [boundingBox[3], boundingBox[1], boundingBox[2]];
+	LocalBB[3] = [boundingBox[3], boundingBox[1], boundingBox[5]];
+	
+	
+	/* Computing the ray of the bounding cylinder based on the bounding box */
+	var max_x = abs(LocalBB[0][0]);
+	var max_z = abs(LocalBB[0][2]);
+	
+	for (var i = 1; i < len(LocalBB); i++){
+		if(abs(LocalBB[i][0]) > max_x)
+			max_x = abs(LocalBB[i][0]);
+		if(abs(LocalBB[i][2]) > max_z)
+			max_z = abs(LocalBB[i][2]);
+	}
+	
+	boundRay = sqrt(max_x * max_x + max_z * max_z);
 }
 
 function Myself::setPosition(pos, angle) {
 	m_kinematics.pos = pos;
 	m_kinematics.angle = angle;
+}
+
+function Myself::getBoundingRay() {
+	return boundRay;	
+	
 }
 
 #endif
