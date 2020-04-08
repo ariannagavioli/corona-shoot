@@ -62,10 +62,6 @@ function OnInit(params)
 	
 	curr_level = level();
 	curr_level.init("level.txt");
-	
-	// curr_player = player();
-	// curr_player.init();
-	// curr_player.setPosition([2,0,2]);
 
 	m_system = System();
 	m_res = ResourceManager("level.txt");
@@ -99,7 +95,6 @@ function OnFrame()
 
 	SceneBegin();
 	DrawGrid([0.5, 0.5, 0.5], 100);
-
 	/* Debug camera view */
 	// if(keypressed(VK_LCONTROL)){
 	// 	curr_player.debug_mode();
@@ -108,7 +103,6 @@ function OnFrame()
 	// if(curr_player.debug){
 	// 	CameraMoveMouse();
 	// }
-
 	// curr_player.update();
 	/* code */
 	curr_level.draw();
@@ -123,8 +117,7 @@ function OnFrame()
 				m_system.showHelp();
 				// >>>>> THIS SECTION CAN BE DONE OUT OF THIS LOOP oout of SceneBegin
 				/*Human Interaction*/
-				m_system.moveTrooper(m_manager.participants[i]);
-				m_system.jump(m_manager.participants[i]);
+				m_system.moveTrooper(m_manager.participants[i], curr_level);
 				m_system.pointOfView(m_manager.participants[i]);
 				m_system.selectWeapon(m_manager.Participants[i]);
 				m_system.shoot(m_manager.Participants[i]);
@@ -139,7 +132,6 @@ function OnFrame()
 				m_system.updateBullet(m_manager.Participants, i, curr_level.matrix);
 				// <<<<<< END OF SECIONT OUT OF LOOP
 			}
-
 			m_system.updateTrooper(m_manager.participants[i]);
 			// Our drawings
 			m_system.drawTrooper(m_manager.participants[i], m_manager.participants[m_index]);
@@ -147,9 +139,6 @@ function OnFrame()
 			j++;
 		}
 	}
-	// // Draw all Participants
-	// // playerCluster.drawEmAll();	
-	// curr_player.draw();
 	SceneEnd();
 	m_system.audioFX.playAmbient();
 }
