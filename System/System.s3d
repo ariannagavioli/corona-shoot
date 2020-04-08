@@ -31,6 +31,7 @@ class System {
 	reload(me);
 	takePainkillers(me);
 	showHelp();
+	shoot(trooper);
 
 	/* Network */
 	sendKinematics(kinematics_owner, m_ses, obj);
@@ -111,7 +112,7 @@ function checkBulletHit(trooper, id) {
 			d = modulus(trooper[i].m_kinematics.pos - trooper[id].ammo.m_kinematics.pos);
 			if (d < 1.4) {
 				trooper[i].hit = 100;
-				trooper[i].life--;
+				trooper[i].life.life--;
 				return true;
 			}
 		}
@@ -280,7 +281,6 @@ function System::MoveTrooper(trooper, level) {
 	var xl_coll = level.wallCollision([x_left, trooper.m_kinematics.pos[1], trooper.m_kinematics.pos[2]]);
 	var zu_coll = level.wallCollision([trooper.m_kinematics.pos[0], trooper.m_kinematics.pos[1], z_up]);
 	var zb_coll = level.wallCollision([trooper.m_kinematics.pos[0], trooper.m_kinematics.pos[1], z_bottom]);
-	
 	
 	var angle = ( trooper.m_kinematics.angle + 360 );
 	if(trooper.m_kinematics.vel < 0)		//angle the trooper looks at is the opposite wrt direction of movement
