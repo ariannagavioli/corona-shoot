@@ -6,6 +6,7 @@
 #include <./Network/session.s3d>
 #include <./System/System.s3d>
 #include <./Manager/Manager.s3d>
+#include <./RenderEntity/RenderEntity.s3d>
 /* Set global scene parameters */
 SET SCENE_FOV  = 60;
 SET SCENE_NEAR = 0.5;
@@ -28,8 +29,7 @@ function DrawGrid(col, size);
 /* GLOBAL VARIABLES */
 var curr_player;
 var curr_level;
-// var camera;
-
+var ammoBox;
 // Network
 #define SERVER_IP 	"34.67.36.159" 	// Google VM
 // #define SERVER_IP 	"192.168.43.100"	// Raspberry Pi
@@ -37,6 +37,7 @@ var curr_level;
 var m_session = Session();
 var m_index;
 var m_system;
+var m_res;
 
 // Participants
 #define MAX_NUM_PLAYERS 20
@@ -46,6 +47,8 @@ var	shooting_background;
 function OnDownload()
 {
 	// Download resources here;
+	FileDownload("XVRCollada.dll");
+	FileDownload("libcollada14dom21.dll");
 	FileDownload("XVRResources.zip");
 }
 
@@ -65,6 +68,7 @@ function OnInit(params)
 	// curr_player.setPosition([2,0,2]);
 
 	m_system = System();
+	m_res = ResourceManager("level.txt");
 
 	m_manager = Manager(MAX_NUM_PLAYERS);
 	var successfulSignUp = false;
@@ -82,6 +86,8 @@ function OnInit(params)
 	/* Randomly spawn the current player in the maze */
 	curr_level.setRandomPosition(m_manager.participants[m_index]);
 	m_system.audioFX.playAmbient();
+
+	// For Tests
 }
 
 
@@ -92,8 +98,8 @@ function OnFrame()
 	// CameraMoveMouse();
 
 	SceneBegin();
-
 	DrawGrid([0.5, 0.5, 0.5], 100);
+
 	/* Debug camera view */
 	// if(keypressed(VK_LCONTROL)){
 	// 	curr_player.debug_mode();
@@ -112,18 +118,26 @@ function OnFrame()
 		if (m_manager.participants[i].tagID.number > 0) {
 			/* COMPULSARY SYSTEMS FOR MYSELF*/
 			if (i == m_index) {
-				m_system.showMyName(m_manager.participants[i]); 
-
+				m_system.showMyInfo(m_manager.participants[i]); 
+				m_system.drawResource(m_res, m_manager.participants[i]);
+				m_system.showHelp();
+				// >>>>> THIS SECTION CAN BE DONE OUT OF THIS LOOP oout of SceneBegin
 				/*Human Interaction*/
 				m_system.moveTrooper(m_manager.participants[i]);
 				m_system.jump(m_manager.participants[i]);
 				m_system.pointOfView(m_manager.participants[i]);
 				m_system.selectWeapon(m_manager.Participants[i]);
 				m_system.shoot(m_manager.Participants[i]);
+				m_system.reload(m_manager.Participants[i]);
+				m_system.takePainkillers(m_manager.Participants[i]);
+
 				/* Network */
 				m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[i].m_kinematics);			
 				m_system.sendKinematics(SHOT_AMMO_PDU, &m_session, m_manager.Participants[i].ammo.m_kinematics);			
 				m_system.sendEvent(&m_session, m_manager.Participants[i]);
+				/* Physics */
+				m_system.updateBullet(m_manager.Participants, i, curr_level.matrix);
+				// <<<<<< END OF SECIONT OUT OF LOOP
 			}
 
 			m_system.updateTrooper(m_manager.participants[i]);
@@ -178,7 +192,7 @@ function OnTimer()
 			m_manager.participants[incoming_id].ammo.m_kinematics.pos[0] = recvData[2];
 			m_manager.participants[incoming_id].ammo.m_kinematics.pos[1] = recvData[3];
 			m_manager.participants[incoming_id].ammo.m_kinematics.pos[2] = recvData[4];
-			m_manager.participants[incoming_id].ammo.life = 100;
+			m_manager.participants[incoming_id].ammo.life = recvData[5];
 		}
 
 		/* Jumped event on the enemies */

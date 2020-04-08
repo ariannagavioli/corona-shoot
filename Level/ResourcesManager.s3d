@@ -1,0 +1,75 @@
+#ifndef RESOURCES_MAP_S3D
+#define RESOURCES_MAP_S3D
+
+#include "../RenderEntity/RenderEntity.s3d"
+
+#define AMMO_BOX			0
+#define FIRST_AID_KIT		1
+#define CURE_WIN			2
+#define NUM_RESOURCES 		3
+
+class Resource {
+	var pos;
+	var type;
+};
+
+function Resource::Resource() {
+	pos = vector(3);
+	type = AMMO_BOX; // default res
+}
+
+class ResourceManager {
+	var res;
+	var length;
+	var drawable;
+	draw(i);
+};
+
+function ResourceManager::ResourceManager(fileName) {
+	var FILE = LoadFile(fileName);
+	var num_rows = len(FILE);
+	var num_cols = len(FILE[0]);
+	var tmpRes = Resource();
+	res = array(0);
+	length = 0;
+	for (var i = 1; i < num_rows-1; i++) {
+		for (var k = 1; k < num_cols-1; k++) {
+			if (FILE[i][k] == "A") {
+				aadd(res, Resource());
+				res[length].pos[1] = 0.0;
+				res[length].pos[0] = k + 0.5;
+				
+				if (FILE[i-1][k] == "+" || FILE[i-1][k] == "*")
+					res[length].pos[2] = i+0.3;
+				else 
+					res[length].pos[2] = i+(1.0 - 0.3);
+
+				res[length].type = AMMO_BOX;
+				length++;
+			} else if (FILE[i][k] == "H") {
+				aadd(res, Resource());
+				res[length].pos[1] = 0.0;
+				res[length].pos[0] = k + 0.5;
+				res[length].pos[2] = i + 0.5;
+
+				if (FILE[i+1][k] == "+" || FILE[i+1][k] == "*")
+					res[length].pos[2] += 0.2;
+
+				res[length].type = FIRST_AID_KIT;
+				length++;
+			}
+		}
+	}
+
+	drawable = array(NUM_RESOURCES);
+	drawable[AMMO_BOX] = RenderEntity("ammobox.dae");	
+	drawable[AMMO_BOX].normalization(1, NULL);
+	drawable[FIRST_AID_KIT] = RenderEntity("fak.dae");
+	drawable[FIRST_AID_KIT].normalization(1, NULL);
+}
+function ResourceManager::draw(i) {
+	var toDraw = res[i].type;
+	drawable[toDraw].obj.setPosition(res[i].pos);
+	drawable[toDraw].obj.draw();
+}
+#endif

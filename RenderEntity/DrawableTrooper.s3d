@@ -4,29 +4,28 @@
 
 #include "DrawablePerson.s3d"
 #include "DrawableArmament.s3d"
+#include "Bullet.s3d"
 
 class DrawableTrooper {
 // Properties
 	var body;		// DrawablePerson
 	var weapon;		// Weapons
+	var ammo;
 	var frame;		// frame number to draw
-	var obj_sound;
-	var jump_sound;	
-	var shoot_sound;
 // Methods
 	setPosition(pos, angle);
 	draw(frame_number);
+	drawBullet(pos, size);
 };
 
 function DrawableTrooper::DrawableTrooper() {
 	body = DrawablePerson();
 	weapon = DrawableArmament(body.scaleMeasure);
 
-
+	ammo = Bullet();
 	body.addArmament(weapon.railGun.obj);
 	body.addArmament(weapon.rocketLauncher.obj);
 	frame = 0;
-	
 }
 
 function DrawableTrooper::setPosition(pos, angle) {
@@ -36,6 +35,10 @@ function DrawableTrooper::setPosition(pos, angle) {
 
 function DrawableTrooper::draw(frame_number) {
 	body.obj.draw(VR_FRAMENUMBER, frame_number);
+}
+
+function DrawableTrooper::drawBullet(pos, size) {
+	ammo.draw(pos, size);
 }
 
 #endif

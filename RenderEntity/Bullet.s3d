@@ -1,0 +1,18 @@
+#ifndef BULLET_S3D
+#define BULLET_S3D
+
+class Bullet {
+	draw(pos, size);		
+};
+
+function Bullet::draw(pos, size) {
+	glPushMatrix();
+		glTranslate(pos);
+		glPointSize(size);
+		glColor(1,1,0);
+		glBegin(GL_POINTS);
+			glVertex(0,0,0);
+		glEnd();
+	glPopMatrix();
+}
+#endif

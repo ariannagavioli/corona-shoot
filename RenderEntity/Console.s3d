@@ -1,0 +1,44 @@
+#ifndef CONSOLE_S3D
+#define CONSOLE_S3D
+
+function ConsoleSetDefault(){
+	ConsoleFont("Arial", 14);
+	ConsoleColor(1, 1, 1, 1);
+	ConsoleWidth(1);
+}
+
+function ConsolePlotHelp() {
+	glEnable(GL_BLEND);
+
+	ConsoleWidth(2);
+
+	/* Container */
+	ConsoleColor(0.31, 0.702, 0.749, 0.2);
+	ConsoleFilledRect(0.1, 0.9, 0.8, 0.8);
+
+	/* Title */
+	ConsoleColor(1, 1, 1, 1);
+	ConsoleFont("Arial", 36);
+	ConsoleText(0.13, 0.80, "Constrols");
+
+	/* Content */
+	ConsoleFont("Arial", 20);
+	/*> First Column */
+	ConsoleText(0.15, 0.70, "w:\tMove Forward");
+	ConsoleText(0.15, 0.60, "s:\tMove Backwards");
+	ConsoleText(0.15, 0.50, "d:\tRotate Left");
+	ConsoleText(0.15, 0.40, "a:\tRotate Right");
+	ConsoleText(0.15, 0.30, "f:\tSwitch Weapon");
+	ConsoleText(0.15, 0.20, "v:\tSwitch Camera");
+
+	/*> Second column*/
+	ConsoleText(0.5, 0.70, "r:\tReload Ammo");
+	ConsoleText(0.5, 0.60, "h:\tTake Painkillers");
+	ConsoleText(0.5, 0.50, "Space:\tJump");
+	ConsoleText(0.5, 0.40, "Left Click:\tshoot");
+	// ConsoleText(0.5, 0.30, "f:\tSwitch Weapon");
+	// ConsoleText(0.5, 0.20, "v:\tRotate Right");
+	ConsoleSetDefault();
+}
+
+#endif

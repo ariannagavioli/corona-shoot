@@ -3,9 +3,13 @@
 
 #include "../Kinematics/Kinematics.s3d"
 
-#define MAX_RAILGUN_AMMO 36;
-#define MAX_ROCKETLAUNCHER_AMMO 12;
+#define MAX_RAILGUN_AMMO 		36
+#define MAX_ROCKETLAUNCHER_AMMO 12
 
+#define RAILGUN_T				0
+#define ROCKETLAUNCHER_T		1
+
+/* Extension of kinematics class for ammunition */
 class AmmoKinematics : Kinematics {
 	var orientation;
 };
@@ -13,21 +17,77 @@ class AmmoKinematics : Kinematics {
 function AmmoKinematics::AmmoKinematics() {
 	orientation = [0, 0, 0];
 }
+/* End of extension */
 
 class Ammunition {
 	var m_kinematics;
 	var life;
 	var type;
-	var RailGunAmmo;
-	var rocketLauncherAmmo;
+	var bullets;
+	var bulletSize;
+	var speed;
+	var readyToReload;
+	var name;
+	// 
+	decrease();
+	bag();
+	size();
+	reload();
+	updatePosition();
+	getName();
 };
 
 function Ammunition::Ammunition() {
 	m_kinematics = AmmoKinematics();
 	life = 0;
 	type = 0;
-	RailGunAmmo = 36;
-	rocketLauncherAmmo = 12;
+
+	bullets = vector(2);
+	bulletSize = vector(2);
+	speed = vector(2);
+	name = array(2);
+
+	bullets[RAILGUN_T] = MAX_RAILGUN_AMMO;
+	bullets[ROCKETLAUNCHER_T] = MAX_ROCKETLAUNCHER_AMMO;
+
+	bulletSize[RAILGUN_T] = 5.0;	
+	bulletSize[ROCKETLAUNCHER_T] = 8.0;	
+
+	speed[RAILGUN_T] = 1.0;	
+	speed[ROCKETLAUNCHER_T] = 0.1;	
+
+	name[RAILGUN_T] = "Railgun";
+	name[ROCKETLAUNCHER_T] = "Rocket Launcher";
+
+	readyToReload = false;
 }
 
+function Ammunition::decrease() {
+	if (bullets[type] > 0)
+		bullets[type]--;
+}
+
+
+function Ammunition::bag() {
+	return bullets[type];
+}
+
+function Ammunition::size() {
+	return bulletSize[type];
+}
+
+function Ammunition::reload() {
+	if (type == RAILGUN_T)
+		bullets[RAILGUN_T] = MAX_RAILGUN_AMMO;
+	else if (type == ROCKETLAUNCHER_T)
+		bullets[ROCKETLAUNCHER_T] = MAX_ROCKETLAUNCHER_AMMO;
+}
+
+function Ammunition::updatePosition() {
+	return m_kinematics.pos + m_kinematics.orientation * speed[type];
+}
+
+function Ammunition::getName() {
+	return name[type];
+}
 #endif

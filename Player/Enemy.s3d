@@ -14,8 +14,9 @@ class Enemy {
 	var weapon;		// 0 or 1
 	var drawable;
 	var m_kinematics;
-	var m_health;
+	var life;
 	var ammo;
+	var hit;
 };
 
 function Enemy::Enemy() {
@@ -23,7 +24,7 @@ function Enemy::Enemy() {
 	weapon = false;
 	drawable = DrawableTrooper();
 	m_kinematics = PlayerKinematics();
-	m_health = Health();
+	life = Health();
 	ammo = Ammunition();
 }
 

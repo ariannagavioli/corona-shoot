@@ -15,7 +15,7 @@ class Myself { // Me
 	var weapon; 
 	var drawable;
 	var m_kinematics;
-	var m_health;
+	var life;
 	var jumping;
 	var cam;
 	var ammo;
@@ -28,7 +28,7 @@ function Myself::Myself() {
 	weapon = false;
 	drawable = DrawableTrooper();
 	m_kinematics = PlayerKinematics();
-	m_health = Health();
+	life = Health();
 	cam = Camera();
 	ammo = Ammunition();
 }
