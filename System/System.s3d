@@ -327,31 +327,48 @@ function System::MoveTrooper(trooper, level) {
     pos[0] = trooper.m_kinematics.pos[0] + trooper.m_kinematics.vel * sin(trooper.m_kinematics.angle / 180.0 * PI);
     pos[1] = trooper.m_kinematics.pos[1];
     pos[2] = trooper.m_kinematics.pos[2] + trooper.m_kinematics.vel * cos(trooper.m_kinematics.angle / 180.0 * PI);
+    
+    var diag_component = sqrt(2) / 2.0;		// = sin(45) = cos(45)
 
-	var x_left = pos[0] + ray;
-	var x_right = pos[0] - ray;
-	var z_up = pos[2] + ray;
-	var z_bottom = pos[2] - ray;
+	var x_left			= pos[0] + ray;
+	var x_left_diag		= pos[0] + ray * diag_component;
+	var x_right			= pos[0] - ray;
+	var x_right_diag	= pos[0] - ray * diag_component;
+	var z_up 			= pos[2] + ray;
+	var z_up_diag 		= pos[2] + ray * diag_component;
+	var z_bottom 		= pos[2] - ray;
+	var z_bottom_diag	= pos[2] - ray * diag_component;
 	
 	var xr_coll = level.wallCollision([x_right, trooper.m_kinematics.pos[1], trooper.m_kinematics.pos[2]]);
 	var xl_coll = level.wallCollision([x_left, trooper.m_kinematics.pos[1], trooper.m_kinematics.pos[2]]);
+	
 	var zu_coll = level.wallCollision([trooper.m_kinematics.pos[0], trooper.m_kinematics.pos[1], z_up]);
 	var zb_coll = level.wallCollision([trooper.m_kinematics.pos[0], trooper.m_kinematics.pos[1], z_bottom]);
+	
+	var up_left_coll	= level.wallCollision([x_left_diag, trooper.m_kinematics.pos[1], z_up_diag]);
+	var up_right_coll	= level.wallCollision([x_right_diag, trooper.m_kinematics.pos[1], z_up_diag]);
+	var bott_left_coll	= level.wallCollision([x_left_diag, trooper.m_kinematics.pos[1], z_bottom_diag]);
+	var bott_right_coll	= level.wallCollision([x_right_diag, trooper.m_kinematics.pos[1], z_bottom_diag]);
 	
 	var angle = ( trooper.m_kinematics.angle + 360 );
 	if(trooper.m_kinematics.vel < 0)		//angle the trooper looks at is the opposite wrt direction of movement
 		angle += 180;
 	angle = angle % 360;
+	
+	var right_collision		= xr_coll || up_right_coll || bott_right_coll;
+	var left_collision		= xl_coll || up_left_coll || bott_left_coll;
+	var up_collision		= zu_coll || up_right_coll || up_left_coll;
+	var bottom_collision	= zb_coll || bott_right_coll || bott_left_coll;
 
-	if( (!xr_coll && !xl_coll)				//No collision over x
-		|| ( xr_coll && angle <= 180 )		//Collision on the right, but the player is moving left
-		|| ( xl_coll && angle >= 180 ) )	//Collision on the left, but the player is moving right
-    	trooper.m_kinematics.pos[0] = pos[0];	// x-component
+	if( (!right_collision && !left_collision)			//No collision over x
+		|| ( right_collision && angle <= 180 )			//Collision on the right, but the player is moving left
+		|| ( left_collision && angle >= 180 ) )			//Collision on the left, but the player is moving right
+    		trooper.m_kinematics.pos[0] = pos[0];	// update x-component
     
-    if( (!zu_coll && !zb_coll)								//No collision over z
-    	|| ( zu_coll && angle >= 90 && angle <= 270 ) 		//Collision on the top, but player is moving down
-    	|| ( zb_coll && (angle <= 90 || angle >= 270 ) ) )	//Collision on the bottom, but player is moving up
-    	trooper.m_kinematics.pos[2] = pos[2];	// z-component
+    if( (!up_collision && !bottom_collision)							//No collision over z
+    	|| ( up_collision && ( angle >= 90 && angle <= 270 ) )			//Collision on the top, but player is moving down
+    	|| ( bottom_collision && ( angle <= 90 || angle >= 270 ) ) )	//Collision on the bottom, but player is moving up
+    		trooper.m_kinematics.pos[2] = pos[2];	// update z-component
 }
 
 function System::updateTrooper(trooper) {
