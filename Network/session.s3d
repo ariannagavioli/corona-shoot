@@ -11,7 +11,13 @@ class Session : Network {
 	askServerFor(cmd);
 	sendKinematics(kinematics_owner, xyzvel);
 	sendEvent(event_pdu_type);
+	sendInjuried(who, dammage);
 };
+
+function Session::sendInjuried(who, dammage) {
+	m_pdu.Injuried(who, dammage);
+	sendTCP(m_pdu.msgInjuried);
+}
 
 function Session::sendEvent(event_pdu_type) {
 	m_pdu.event(event_pdu_type);

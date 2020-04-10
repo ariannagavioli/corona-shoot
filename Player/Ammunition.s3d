@@ -28,6 +28,7 @@ class Ammunition {
 	var speed;
 	var readyToReload;
 	var name;
+	var dammage;
 	// 
 	decrease();
 	bag();
@@ -35,6 +36,7 @@ class Ammunition {
 	reload();
 	updatePosition();
 	getName();
+	getDammage();
 };
 
 function Ammunition::Ammunition() {
@@ -46,6 +48,7 @@ function Ammunition::Ammunition() {
 	bulletSize = vector(2);
 	speed = vector(2);
 	name = array(2);
+	dammage = vector(2);
 
 	bullets[RAILGUN_T] = MAX_RAILGUN_AMMO;
 	bullets[ROCKETLAUNCHER_T] = MAX_ROCKETLAUNCHER_AMMO;
@@ -58,6 +61,9 @@ function Ammunition::Ammunition() {
 
 	name[RAILGUN_T] = "Railgun";
 	name[ROCKETLAUNCHER_T] = "Rocket Launcher";
+
+	dammage[RAILGUN_T] = 1;
+	dammage[ROCKETLAUNCHER_T] = 5;
 
 	readyToReload = false;
 }
@@ -89,5 +95,9 @@ function Ammunition::updatePosition() {
 
 function Ammunition::getName() {
 	return name[type];
+}
+
+function Ammunition::getDammage() {
+	return dammage[type];
 }
 #endif

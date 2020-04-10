@@ -4,14 +4,8 @@
 
 class Kinematics {
 	var pos; 
-	
 	var angle;
-	var step_angle;
-
 	var vel;
-	var prev_velocity;
-
-	var step_velocity;
 };
 
 class PlayerKinematics : Kinematics {
@@ -25,8 +19,6 @@ function Kinematics::Kinematics() {
 	/*The values of the constructor can change*/
 	angle = 0;
 	pos = [2, 0, 2];	// [x, y, z]
-	step_velocity = 0.08;
-	step_angle = 1.0;
 	vel = 0;
 }
 

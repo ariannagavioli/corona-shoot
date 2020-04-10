@@ -19,6 +19,7 @@ class Myself { // Me
 	var jumping;
 	var cam;
 	var ammo;
+	var shot;
 	var boundRay;
 // Methods
 	setPosition(pos, angle);
@@ -33,7 +34,8 @@ function Myself::Myself() {
 	life = Health();
 	cam = Camera();
 	ammo = Ammunition();
-	
+	shot = -1;
+
 	var boundPoints = Array(4);			//Bounding pointss is composed by 4 3-d points
 	var LocalBB = Array(4);				//Bounding pointss is composed by 4 3-d points
 	for(var i = 0; i < 4; i++) {
@@ -42,7 +44,6 @@ function Myself::Myself() {
 	}
 	var boundingBox;
 	boundingBox = drawable.body.lowerBody.mesh.getBoundingBox();
-	
 	/* min_x, min_y, min_z, max_x, max_y, max_z
 	 * We only take in consideration the points with min_y
 	 */

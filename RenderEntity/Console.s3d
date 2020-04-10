@@ -41,4 +41,16 @@ function ConsolePlotHelp() {
 	ConsoleSetDefault();
 }
 
+function ConsolePlotGameOver() {
+	/* Container */
+	ConsoleColor(1.0, 0.0, 0.0, 0.5);
+	ConsoleFilledRect(0.0, 0.6, 1.0, 0.2);
+	ConsoleColor(1, 1, 1, 1);
+	ConsoleFont("Arial", 50);
+	ConsoleText(0.27, 0.50, "Game Over");
+	ConsoleFont("Arial", 26);
+	ConsoleText(0.27, 0.42, "You were removed from the server");
+	ConsoleSetDefault();
+}
+
 #endif

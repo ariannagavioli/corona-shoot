@@ -16,7 +16,7 @@ class Enemy {
 	var m_kinematics;
 	var life;
 	var ammo;
-	var hit;
+	var shot;
 };
 
 function Enemy::Enemy() {
@@ -26,6 +26,7 @@ function Enemy::Enemy() {
 	m_kinematics = PlayerKinematics();
 	life = Health();
 	ammo = Ammunition();
+	shot = 0;
 }
 
 #endif

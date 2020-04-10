@@ -4,10 +4,11 @@
 // PDU Definition Data exchange
 #define TROOPER_KINEMATICS_PDU	1
 #define SHOT_AMMO_PDU			2
-#define EXPLOSION_PDU 			3
+#define GOT_SHOT_PDU 			3
 #define WEAPON_PDU				4
 #define WEAPON_SWITCH_PDU		5
 #define JUMP_SCREAM_PDU			6
+#define INJURIED_PDU			7
 
 // PDU Definition Autentication
 #define NAME_ME_PDU		99 	// Command to ask the server for a name
@@ -18,12 +19,19 @@ class PDUClass {
 	var msgPosition;	// PDU to send position
 	var msgScore;		// PDU to send score
 	var msgBullet;		// PDU to send bullets
-	var command2;		// PDU for sending commands to the Server
+	var msgInjuried;		//
 	var msgEvent;		// pdu to send events 
+	var command2;		// PDU for sending commands to the Server
 
 	kinematics(pdu_type, pos, vel, angle);	// generate trooper position pdu
 	event(event_type);
+	Injuried(who, dammage);
 };
+
+function PDUClass::Injuried(who, dammage) {
+	msgInjuried[2] = who;
+	msgInjuried[3] = dammage;
+}
 
 function PDUClass::event(event_type) {
 	msgEvent[0] = event_type;
@@ -62,6 +70,11 @@ function PDUClass::PDUClass(id) {
 	// Bullet PDU
 	// PDU_BULLET = vector(7);
 	// PDU_BULLET[0] = PDU_BULLET
+
+	// Injuried PDU
+	msgInjuried = vector(4);
+	msgInjuried[0] = INJURIED_PDU;
+	msgInjuried[1] = id;
 }
 
 class Network {
@@ -70,6 +83,7 @@ class Network {
 	var m_pdu;
 	var channel;
 	var dataRcv;
+	var open;
 
 	connectTCP(ip, port);
 	receiveTCP(data);
@@ -80,6 +94,7 @@ class Network {
 
 function Network::connectTCP(ip, port) {
 	channel = NetConnectTCP(ip, port, VR_NO_BLOCKING);
+	open = true;
 }
 
 function Network::force_receiveTCP(data) {
@@ -89,13 +104,18 @@ function Network::force_receiveTCP(data) {
 }
 
 function Network::receiveTCP(data) {
-	data = NetVarReceiveFromTCP(channel, "");
+	if (open)
+		data = NetVarReceiveFromTCP(channel, "");
 }
 
 function Network::sendTCP(data) {
-	NetVarSendToTCP(channel, data, "");
+	if (open)
+		NetVarSendToTCP(channel, data, "");
 }
 
 function Network::closeTCP() {
-	NetClose(channel);
+	if (open) {
+		NetClose(channel);
+		open = false;
+	}
 }

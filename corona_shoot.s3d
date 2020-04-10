@@ -42,7 +42,6 @@ var m_res;
 // Participants
 #define MAX_NUM_PLAYERS 20
 var m_manager;
-var	shooting_background;
 
 function OnDownload()
 {
@@ -81,8 +80,9 @@ function OnInit(params)
 	
 	/* Randomly spawn the current player in the maze */
 	curr_level.setRandomPosition(m_manager.participants[m_index]);
+	// m_manager.participants[m_index].setPosition([2, 0, 2], 90);
+	m_system.audioFX.PlayCoutinDownFX();
 	m_system.audioFX.playAmbient();
-
 	// For Tests
 }
 
@@ -93,45 +93,42 @@ function OnFrame()
 	/* manage camera */
 	// CameraMoveMouse();
 
+	/*Player Interaction*/
+	m_system.moveTrooper(m_manager.participants[m_index], curr_level);
+	m_system.pointOfView(m_manager.participants[m_index]);
+	m_system.selectWeapon(m_manager.Participants[m_index]);
+	m_system.shoot(m_manager.Participants[m_index]);
+	m_system.reload(m_manager.Participants[m_index]);
+	m_system.updateHealth(m_session, m_manager.Participants[m_index]);
+
+	/* Physics */
+	m_system.updateBullet(m_manager.Participants, m_index, curr_level);
+
+	/* Network */
+	m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[m_index].m_kinematics);			
+	m_system.sendKinematics(SHOT_AMMO_PDU, &m_session, m_manager.Participants[m_index].ammo.m_kinematics);
+	m_system.sendEvent(&m_session, m_manager.Participants[m_index]);
+
 	SceneBegin();
-	DrawGrid([0.5, 0.5, 0.5], 100);
 	/* Debug camera view */
 	// if(keypressed(VK_LCONTROL)){
 	// 	curr_player.debug_mode();
-	// }
-	
+	// }	
 	// if(curr_player.debug){
 	// 	CameraMoveMouse();
 	// }
 	// curr_player.update();
 	/* code */
 	curr_level.draw();
+	m_system.showMyInfo(m_manager.participants[m_index]); 
+	m_system.drawResource(m_res, m_manager.participants[m_index]);
+	m_system.showHelp();
+
 	var j = 0;
 	for (var i = 0; i < MAX_NUM_PLAYERS; ++i) {
 		/* Just the troopers with id bigger than 0 */
 		if (m_manager.participants[i].tagID.number > 0) {
 			/* COMPULSARY SYSTEMS FOR MYSELF*/
-			if (i == m_index) {
-				m_system.showMyInfo(m_manager.participants[i]); 
-				m_system.drawResource(m_res, m_manager.participants[i]);
-				m_system.showHelp();
-				// >>>>> THIS SECTION CAN BE DONE OUT OF THIS LOOP oout of SceneBegin
-				/*Human Interaction*/
-				m_system.moveTrooper(m_manager.participants[i], curr_level);
-				m_system.pointOfView(m_manager.participants[i]);
-				m_system.selectWeapon(m_manager.Participants[i]);
-				m_system.shoot(m_manager.Participants[i]);
-				m_system.reload(m_manager.Participants[i]);
-				m_system.takePainkillers(m_manager.Participants[i]);
-
-				/* Network */
-				m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[i].m_kinematics);			
-				m_system.sendKinematics(SHOT_AMMO_PDU, &m_session, m_manager.Participants[i].ammo.m_kinematics);			
-				m_system.sendEvent(&m_session, m_manager.Participants[i]);
-				/* Physics */
-				m_system.updateBullet(m_manager.Participants, i, curr_level.matrix);
-				// <<<<<< END OF SECIONT OUT OF LOOP
-			}
 			m_system.updateTrooper(m_manager.participants[i]);
 			// Our drawings
 			m_system.drawTrooper(m_manager.participants[i], m_manager.participants[m_index]);
@@ -188,6 +185,17 @@ function OnTimer()
 		if(recvData[0] == JUMP_SCREAM_PDU) {
 			var incoming_id = recvData[1] - 1;
 			m_manager.participants[incoming_id].m_kinematics.just_jumped = true;	
+		}
+
+		/* Received who was injuried */
+		if(recvData[0] == INJURIED_PDU) {
+			var incoming_id = recvData[2];
+			if (incoming_id == m_index) {
+				m_manager.participants[incoming_id].life.life -= recvData[3];
+				if (m_manager.participants[incoming_id].life.life <= 0) {
+					m_manager.participants[incoming_id].life.life = 0;
+				}
+			}
 		}
 
 		/* Server says there's a new guy in town */

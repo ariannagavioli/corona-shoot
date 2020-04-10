@@ -6,6 +6,9 @@
 #define JUMP_SCREAMS	"jump.wav"
 #define STEP_SND_FX		"step.wav"
 #define SHOOT_SND_FX	"shoot2.wav"
+#define DEATH_SND_FX	"Death_sound_fx.wav"
+#define ENCG_VOICE		"Encg_snd_fx.wav"
+#define CNTDOWN_SND_FX	"CntDown_snd_fx.wav"
 
 class AudioFXSystem {
 	/* Entities */
@@ -17,6 +20,9 @@ class AudioFXSystem {
 	playShoot(source, listener);
 	playSteps(source, listener);
 	playAmbient();
+	playencouraging();
+	playDeath();
+	PlayCoutinDownFX();
 
 	/* System Internals interfaces */
 	playDirectionalSound(sndfx, source, listener);
@@ -85,6 +91,31 @@ function AudioFXSystem::playJump(source, listener) {
 
 function AudioFXSystem::playShoot(source, listener) {
 	playDirectionalSound(SHOOT_SND_FX, source, listener);
+}
+
+function AudioFXSystem::playDeath() {
+	static var once = true;
+	if (once) {
+		snd.load(DEATH_SND_FX);
+		snd.play();
+		once = false;
+	}
+}
+
+function AudioFXSystem::playEncouraging() {
+	static var once = true;
+	if(once) {
+		snd.load(ENCG_VOICE);
+		snd.play();
+		once = false;
+	}
+}
+
+function AudioFXSystem::PlayCoutinDownFX(){
+	snd.load(CNTDOWN_SND_FX);
+	snd.play(false);
+	snd.setVolume(0.7);
+	while(snd.isPlaying());
 }
 
 function AudioFXSystem::playAmbient() {

@@ -11,6 +11,9 @@
 #define SYS_GRAVITY			9.8
 #define SYS_DELTA_T			1.0 / 60
 
+#define TROOPER_STEP_ANGLE		1.0
+#define TROOPER_STEP_VELOCITY	0.08
+
 class System {
 	// System components
 	var audioFX;
@@ -22,14 +25,14 @@ class System {
 	drawResource(res, me);
 
 	/* Physics */
-	updateBullet(trooper, id, matrix);
+	updateBullet(trooper, id, level);
 
 	/* Human interaction */
 	MoveTrooper(trooper, level);
 	pointOfView(obj);
 	selectWeapon(obj);
 	reload(me);
-	takePainkillers(me);
+	updateHealth(m_sess, me);
 	showHelp();
 	shoot(trooper);
 
@@ -55,7 +58,18 @@ function System::reload(trooper) {
 	}
 }
 
-function System::takePainkillers(trooper) {
+function System::updateHealth(m_sess, trooper) {
+	static var prevTime = GetTime();
+	var currTime = GetTime();
+	if (trooper.life.life <= 0) {
+		m_sess.closeTCP();
+	} else {
+		if (currTime - prevTime > 100) {
+			trooper.life.life--;
+			prevTime = currTime;
+		}
+	}
+
 	if (KeyPressed("h") && trooper.life.readyToTakePainkillers) {
 		trooper.life.life = MAX_LIFE_POINTS;
 		trooper.life.readyToTakePainkillers = false;
@@ -63,56 +77,64 @@ function System::takePainkillers(trooper) {
 }
 
 function System::drawResource(res, me) {
-	var dst;
-	for (var i = 0; i < res.length; i++) {
-		dst = modulus(res.res[i].pos - me.m_kinematics.pos);
+	// The resources are Ammunition Box and the First Aid Kit 
+	// The resources are only Draw when Myself is close to one of them.
+	var dst;													// Distance from Myself to the Any resource.
+	for (var i = 0; i < res.length; i++) {						// Iterate over all resources.
+		dst = modulus(res.res[i].pos - me.m_kinematics.pos);	// Compute Distances.
 		
-		if (dst < 10) 
-			res.draw(i);
+		if (dst < 10) 											// If the Distances is less the 10 units 
+			res.draw(i);										// the ith resources will be draw.
 
-		if (dst < 1.5) {
-			if (res.res[i].type == AMMO_BOX) {			
-				ConsoleText(0.48, 0.53, "Press R to RELOAD");
-				me.ammo.readyToReload = true;
-			}
+		if (dst < 1.5) {										// If the Distance is smaller than 1.5 units
+			if (res.res[i].type == AMMO_BOX) {					// check if the resources is a Ammunition Box. 
+				ConsoleText(0.48, 0.53, "Press R to RELOAD");	// if so, Display "Press R to Reload".
+				me.ammo.readyToReload = true;					// Enable a switch that tells it's possible 
+			}													// to reload now.
 
-			if (res.res[i].type == FIRST_AID_KIT) {
-				ConsoleText(0.47, 0.5, "Press H to Take Painkillers");
-				me.life.readyToTakePainkillers = true;
-			}
+			if (res.res[i].type == FIRST_AID_KIT) {				// If the the Resource is a First Aid Kit,
+				ConsoleText(0.48, 0.5, "Press H to Take Painkillers");	// show "Press H to Take Painkillers".
+				me.life.readyToTakePainkillers = true;			// Enable a switch that tells it's possible to 
+			}													// to take the Painkillers now.
 		}
 
 	}
 }
 
 function System::shoot(trooper) {
-
-	if(Mouse.ButtonL && trooper.ammo.life == 0 && trooper.ammo.bag() != 0) {
+	// In order to shoot the player has to click on the left Button of the mouse 
+	// But also the last bullet/rocket had to be done, and the trooper's bag has to
+	// have at least one bullet in whatever gun the trooper is carrying right now
+	if(Mouse.ButtonL && trooper.ammo.life == 0 && trooper.ammo.bag() != 0) {	// When Left Mouse Button is clicked and the 
+		/* Computing the Weapong Direction in order to execute the trajectory of the wweapong */
 		var angleTmp = trooper.m_kinematics.angle * PI / 180.0;
 		var direction = [sin(angleTmp), 0, cos(angleTmp)];
 		trooper.ammo.m_kinematics.pos = trooper.m_kinematics.pos;
 		trooper.ammo.life = 100;
-		
+		/* Given the the bullet/rocket is not coming from the center of the soldier but from the canon of the weapon, 
+		the right position has to be set*/
 		trooper.ammo.m_kinematics.pos[0] += -direction[2] * 0.2;
 		trooper.ammo.m_kinematics.pos[2] += direction[0] * 0.2;
 		trooper.ammo.m_kinematics.pos[1] += 1.3;
+
 		trooper.ammo.m_kinematics.vel = trooper.ammo.life;
 		trooper.ammo.m_kinematics.angle = angleTmp;
-		// trooper.ammo.m_kinematics.pos = 
+
 		trooper.ammo.m_kinematics.orientation = direction;
+		/* Decrease the number of bullets of whatever gun the trooper is carrying */
 		trooper.ammo.decrease();
 	}
 }
 
-function checkBulletHit(trooper, id) {
-	var length = len(trooper);
+function checkBulletHit(troopers, id, pos) {
+	// Check if my bullet hit any enemy
+	var length = len(troopers);
 	var d;
 	for (var i = 0; i < length; ++i) {
-		if ((i != id && (trooper[i].tagID.number > 0))) {
-			d = modulus(trooper[i].m_kinematics.pos - trooper[id].ammo.m_kinematics.pos);
-			if (d < 1.4) {
-				trooper[i].hit = 100;
-				trooper[i].life.life--;
+		if ((i != id && (troopers[i].tagID.number > 0))) {	// if it's an Available enemy
+			d = modulus(troopers[i].m_kinematics.pos - pos);	// compute distance from bullet to other players
+			if (d < 1.4) {	// if it's smaller than this, then the enemy was reached
+				troopers[id].shot = i; // Myself gets who was shot
 				return true;
 			}
 		}
@@ -120,23 +142,22 @@ function checkBulletHit(trooper, id) {
 	return false;
 }
 
-function System::updateBullet(troopers, id, matrix) {
+function System::updateBullet(troopers, id, level) {
+	// Updates bullet position and detects collision with walls or
+	// enemies
 	var me = troopers[id];
 	if(me.ammo.life > 0) {
 		me.ammo.life--;
-		var tmpPos = me.ammo.updatePosition();
-		var i = Floor(tmpPos[0]);
-		var k = Floor(tmpPos[2]);
+		var tmpPos = me.ammo.updatePosition();	// gets possible next position
+		var wall = level.wallCollision(tmpPos);	// detects if there's a wall collision
+		var coll = checkBulletHit(troopers, id, tmpPos);	// detects if there's with the potential position
 
-		var coll = checkBulletHit(troopers, id);
-
-
-		if ((matrix[k][i] == "*") || coll) {
-			me.ammo.life = 0;
-			me.ammo.m_kinematics.vel = 0;
-		} 
+		if (wall || coll) {	// Either a collision against wall or enemy, 
+			me.ammo.life = 0;	// the life is set to zero
+			me.ammo.m_kinematics.vel = 0;	// also the velocity (TMP)
+		}
 		else {
-			me.ammo.m_kinematics.pos = tmpPos;
+			me.ammo.m_kinematics.pos = tmpPos;	// if no collision, the bullet keeps going  
 			me.ammo.m_kinematics.vel = me.ammo.life;
 		}
 	}
@@ -145,11 +166,16 @@ function System::updateBullet(troopers, id, matrix) {
 
 function System::sendEvent(m_ses, trooper) {
 	/* Send weapon switch */
-	if(trooper.weapon)
+	if(trooper.weapon)	// sends if weapon was switch
 		m_ses.sendEvent(WEAPON_SWITCH_PDU);
 
-	if(trooper.m_kinematics.just_jumped)
+	if(trooper.m_kinematics.just_jumped)	// sends if jumping has executed
 		m_ses.sendEvent(JUMP_SCREAM_PDU);
+
+	if(trooper.shot > -1) {
+		m_ses.sendInjuried(trooper.shot, trooper.ammo.getDammage());
+		trooper.shot = -1;
+	}
 }
 
 function System::showMyInfo(trooper) {
@@ -159,6 +185,11 @@ function System::showMyInfo(trooper) {
 	ConsoleText(0.05, 0.10, "Health " + str(trooper.life.life));
 	// My Ammution Available
 	ConsoleText(0.05, 0.05, "Ammution " + trooper.ammo.getName() + " " + str(trooper.ammo.bag()));
+	// check Console
+	if (trooper.life.life <= 0) {
+		ConsolePlotGameOver();
+		audioFX.playDeath();
+	}
 }
 
 function System::sendKinematics(kinematics_owner, m_ses, obj) {
@@ -210,22 +241,21 @@ function System::drawTrooper(trooper, me) {
 }
 
 function System::MoveTrooper(trooper, level) {
-	trooper.m_kinematics.prev_velocity = trooper.m_kinematics.vel;
+	var prev_velocity = trooper.m_kinematics.vel;
 	trooper.m_kinematics.vel = 0;
 
-	if (KeyPressed("w"))
-		trooper.m_kinematics.vel = trooper.m_kinematics.step_velocity;
-	else if (KeyPressed("s"))
-		trooper.m_kinematics.vel = -trooper.m_kinematics.step_velocity;
-
-	if (KeyPressed("d")){
-		trooper.m_kinematics.angle -= trooper.m_kinematics.step_angle;
-		trooper.m_kinematics.angle = trooper.m_kinematics.angle % 360;
+	if (KeyPressed("w")) {
+		trooper.m_kinematics.vel = TROOPER_STEP_VELOCITY;
+		audioFX.playEncouraging();	// This only will be played once, at the first step
 	}
-    else if(KeyPressed("a")){
-        trooper.m_kinematics.angle += trooper.m_kinematics.step_angle;
-    	trooper.m_kinematics.angle = trooper.m_kinematics.angle % 360;  
-    }
+	else if (KeyPressed("s"))
+		trooper.m_kinematics.vel = -TROOPER_STEP_VELOCITY;
+
+	if (KeyPressed("d")) 
+		trooper.m_kinematics.angle -= TROOPER_STEP_ANGLE;
+    else if(KeyPressed("a")) 
+        trooper.m_kinematics.angle += TROOPER_STEP_ANGLE;
+	trooper.m_kinematics.angle = trooper.m_kinematics.angle % 360;
     
     /* Jump, only if not already jumping*/
 	if(KeyPressed(VK_SPACE) && !trooper.m_kinematics.is_jumping) {
@@ -236,7 +266,7 @@ function System::MoveTrooper(trooper, level) {
 
     /* If player is jumping, update jump dynamics*/
     if(trooper.m_kinematics.is_jumping){
-    	trooper.m_kinematics.vel = trooper.m_kinematics.prev_velocity;
+    	trooper.m_kinematics.vel = prev_velocity;
     	var new_y = trooper.m_kinematics.pos[1] + trooper.m_kinematics.vertical_velocity * SYS_DELTA_T;
 		trooper.m_kinematics.vertical_velocity -= SYS_GRAVITY * SYS_DELTA_T;
 		
