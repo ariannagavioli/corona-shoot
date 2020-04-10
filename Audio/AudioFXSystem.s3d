@@ -9,6 +9,8 @@
 #define DEATH_SND_FX	"Death_sound_fx.wav"
 #define ENCG_VOICE		"Encg_snd_fx.wav"
 #define CNTDOWN_SND_FX	"CntDown_snd_fx.wav"
+#define SAD_TROMBONE	"Fail_Sad_Trombone.wav"
+#define WINNER_SONG		"Heavens_Choir_Sound_Effect.wav"
 
 class AudioFXSystem {
 	/* Entities */
@@ -23,6 +25,8 @@ class AudioFXSystem {
 	playencouraging();
 	playDeath();
 	PlayCoutinDownFX();
+	playFailed();
+	playWinner();
 
 	/* System Internals interfaces */
 	playDirectionalSound(sndfx, source, listener);
@@ -129,4 +133,21 @@ function AudioFXSystem::playAmbient() {
 	}
 }
 
+function AudioFXSystem::playFailed() {
+	static var once = true;
+	if (once) {
+		snd.load(SAD_TROMBONE);
+		snd.play(false);
+		once = false;
+	}
+}
+
+function AudioFXSystem::playWinner() {
+	static var once = true;
+	if (once) {
+		snd.load(WINNER_SONG);
+		snd.play(false);
+		once = false;
+	}
+}
 #endif

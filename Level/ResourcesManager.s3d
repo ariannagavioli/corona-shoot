@@ -57,6 +57,11 @@ function ResourceManager::ResourceManager(fileName) {
 
 				res[length].type = FIRST_AID_KIT;
 				length++;
+			} else if (FILE[i][k] == "W") {
+				aadd(res, Resource());
+				res[length].pos = [k, 0, i+0.5];
+				res[length].type = CURE_WIN;
+				length++;
 			}
 		}
 	}
@@ -66,6 +71,8 @@ function ResourceManager::ResourceManager(fileName) {
 	drawable[AMMO_BOX].normalization(1, NULL);
 	drawable[FIRST_AID_KIT] = RenderEntity("fak.dae");
 	drawable[FIRST_AID_KIT].normalization(1, NULL);
+	drawable[CURE_WIN] = RenderEntity("cure.dae");
+	drawable[CURE_WIN].normalization(25, NULL);
 }
 function ResourceManager::draw(i) {
 	var toDraw = res[i].type;

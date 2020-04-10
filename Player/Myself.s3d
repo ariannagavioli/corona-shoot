@@ -21,6 +21,7 @@ class Myself { // Me
 	var ammo;
 	var shot;
 	var boundRay;
+	var winner;
 // Methods
 	setPosition(pos, angle);
 	getBoundingRay();
@@ -35,6 +36,7 @@ function Myself::Myself() {
 	cam = Camera();
 	ammo = Ammunition();
 	shot = -1;
+	winner = -1;
 
 	var boundPoints = Array(4);			//Bounding pointss is composed by 4 3-d points
 	var LocalBB = Array(4);				//Bounding pointss is composed by 4 3-d points

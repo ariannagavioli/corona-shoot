@@ -32,7 +32,7 @@ function AmbientSoundFxManager::AmbientSoundFxManager() {
 	length = 2;
 	fx = array(length);
 	fx[0] = AmbientSoundFx(SHOOTIN_BKG_FX, 78427, 0.8);
-	fx[1] = AmbientSoundFx(MUSIC_FX, 157263, 0.7);
+	fx[1] = AmbientSoundFx(MUSIC_FX, 157263, 0.8);
 }
 
 function AmbientSoundFxManager::isFinished(i) {
