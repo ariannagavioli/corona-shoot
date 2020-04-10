@@ -79,8 +79,8 @@ function OnInit(params)
 	m_index = m_session.m_id - 1;
 	
 	/* Randomly spawn the current player in the maze */
-	curr_level.setRandomPosition(m_manager.participants[m_index]);
-	// m_manager.participants[m_index].setPosition([2, 0, 2], 90);
+	// curr_level.setRandomPosition(m_manager.participants[m_index]);
+	m_manager.participants[m_index].setPosition([2, 0, 2], 90);
 	m_system.audioFX.PlayCoutinDownFX();
 	m_system.audioFX.playAmbient();
 	// For Tests
@@ -196,6 +196,11 @@ function OnTimer()
 					m_manager.participants[incoming_id].life.life = 0;
 				}
 			}
+		}
+
+		/* Received who won */
+		if (recvData[0] == WINNER_PDU) {
+			m_manager.participants[m_index].winner = recvData[2];
 		}
 
 		/* Server says there's a new guy in town */

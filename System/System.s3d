@@ -74,6 +74,11 @@ function System::updateHealth(m_sess, trooper) {
 		trooper.life.life = MAX_LIFE_POINTS;
 		trooper.life.readyToTakePainkillers = false;
 	}  
+
+	if (KeyPressed("e") && trooper.life.readyToTakePainkillers) {
+		trooper.winner = trooper.tagID.number;
+		trooper.life.readyToTakePainkillers = false;
+	}
 }
 
 function System::drawResource(res, me) {
@@ -83,7 +88,7 @@ function System::drawResource(res, me) {
 	for (var i = 0; i < res.length; i++) {						// Iterate over all resources.
 		dst = modulus(res.res[i].pos - me.m_kinematics.pos);	// Compute Distances.
 		
-		if (dst < 10) 											// If the Distances is less the 10 units 
+		if (dst < 15) 											// If the Distances is less the 10 units 
 			res.draw(i);										// the ith resources will be draw.
 
 		if (dst < 1.5) {										// If the Distance is smaller than 1.5 units
@@ -95,6 +100,13 @@ function System::drawResource(res, me) {
 			if (res.res[i].type == FIRST_AID_KIT) {				// If the the Resource is a First Aid Kit,
 				ConsoleText(0.48, 0.5, "Press H to Take Painkillers");	// show "Press H to Take Painkillers".
 				me.life.readyToTakePainkillers = true;			// Enable a switch that tells it's possible to 
+			}
+
+			if (res.res[i].type == CURE_WIN) {				// If the the Resource is the Ultimate Cure,
+				if (me.winner < 0) {					
+					ConsoleText(0.48, 0.5, "Press E to Take the Cure");	// show "Press E to Interact".
+					me.life.readyToTakePainkillers = true;			// Enable a switch that tells it's possible to 
+				}
 			}													// to take the Painkillers now.
 		}
 
@@ -176,6 +188,10 @@ function System::sendEvent(m_ses, trooper) {
 		m_ses.sendInjuried(trooper.shot, trooper.ammo.getDammage());
 		trooper.shot = -1;
 	}
+
+	if (trooper.winner > -1) {
+		m_ses.sendWinner(trooper.winner);
+	}
 }
 
 function System::showMyInfo(trooper) {
@@ -186,10 +202,20 @@ function System::showMyInfo(trooper) {
 	// My Ammution Available
 	ConsoleText(0.05, 0.05, "Ammution " + trooper.ammo.getName() + " " + str(trooper.ammo.bag()));
 	// check Console
-	if (trooper.life.life <= 0) {
+
+	if (trooper.winner > -1) {
+		if (trooper.winner == trooper.tagID.number) {
+			ConsolePlotWinner();
+			audioFX.playWinner();
+		} else  {
+			ConsolePlotLooser();
+			audioFX.playFailed();
+		}
+	} else if (trooper.life.life <= 0) {
 		ConsolePlotGameOver();
 		audioFX.playDeath();
 	}
+	
 }
 
 function System::sendKinematics(kinematics_owner, m_ses, obj) {

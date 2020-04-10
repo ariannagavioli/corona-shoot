@@ -12,7 +12,13 @@ class Session : Network {
 	sendKinematics(kinematics_owner, xyzvel);
 	sendEvent(event_pdu_type);
 	sendInjuried(who, dammage);
+	sendWinner(winner);
 };
+
+function Session::sendWinner(winner) {
+	m_pdu.Winner(winner);
+	sendTCP(m_pdu.msgWinner);
+}
 
 function Session::sendInjuried(who, dammage) {
 	m_pdu.Injuried(who, dammage);

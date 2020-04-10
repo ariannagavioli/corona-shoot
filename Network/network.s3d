@@ -9,6 +9,7 @@
 #define WEAPON_SWITCH_PDU		5
 #define JUMP_SCREAM_PDU			6
 #define INJURIED_PDU			7
+#define WINNER_PDU				8
 
 // PDU Definition Autentication
 #define NAME_ME_PDU		99 	// Command to ask the server for a name
@@ -19,14 +20,20 @@ class PDUClass {
 	var msgPosition;	// PDU to send position
 	var msgScore;		// PDU to send score
 	var msgBullet;		// PDU to send bullets
-	var msgInjuried;		//
-	var msgEvent;		// pdu to send events 
+	var msgInjuried;	// PDU to send who was injuried
+	var msgWinner;		// PDU to send the winner
+	var msgEvent;		// PDU to send events 
 	var command2;		// PDU for sending commands to the Server
 
 	kinematics(pdu_type, pos, vel, angle);	// generate trooper position pdu
 	event(event_type);
 	Injuried(who, dammage);
+	Winner(win);
 };
+
+function PDUClass::Winner(win) {
+	msgWinner[2] = win;
+}
 
 function PDUClass::Injuried(who, dammage) {
 	msgInjuried[2] = who;
@@ -75,6 +82,11 @@ function PDUClass::PDUClass(id) {
 	msgInjuried = vector(4);
 	msgInjuried[0] = INJURIED_PDU;
 	msgInjuried[1] = id;
+
+	// Winner PDU
+	msgWinner = vector(3);
+	msgWinner[0] = WINNER_PDU;
+	msgWinner[1] = id;
 }
 
 class Network {
@@ -91,6 +103,10 @@ class Network {
 	sendTCP(data);
 	closeTCP();
 };
+
+function Network::Network() {
+	open = false;	
+}
 
 function Network::connectTCP(ip, port) {
 	channel = NetConnectTCP(ip, port, VR_NO_BLOCKING);
