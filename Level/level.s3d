@@ -113,12 +113,26 @@ function level::setRandomPosition(obj){
 	var z;
 	var angle;
 	
-	x = Rand(len(matrix[0]) - 1);
-	z = Rand(len(matrix) - 1);
+	x = Rand( (len(matrix[0]) - 1) / 4);
+	z = Rand( (len(matrix) - 1) / 4);
+	
+	var isUp;
+	var isLeft;
+	isUp = Rand(1);
+	isLeft = Rand(1);
+	
+	x += isLeft * 3 / 4;
+	z += isUp * 3 / 4;
 	
 	while(matrix[z][x] != " "){		// The spot is taken by a wall
-		x = Rand(len(matrix[0]) - 1);
-		z = Rand(len(matrix) - 1);
+		x = Rand( (len(matrix[0]) - 1) / 4);
+		z = Rand( (len(matrix) - 1) / 4);
+		
+		isUp = Rand(1);
+		isLeft = Rand(1);
+	
+		x += isLeft * 3 / 4;
+		z += isUp * 3 / 4;
 	}
 	
 	angle = Rand(3);
@@ -132,17 +146,17 @@ function level::wallCollision(point){
 		return true;
 	if(point[2] < 0 || point[2] > num_rows - 1)
 		return true;
-	if(matrix[point[2]][point[0]] == "*")
+	if(matrix[point[2]][point[0]] == "*")	//Higher walls
 		return true;
-	if(matrix[point[2]][point[0]] == "W")
+	if(matrix[point[2]][point[0]] == "W")	//Cure
 		return true;
-	if(matrix[point[2]][point[0]] == "A")
+	if(matrix[point[2]][point[0]] == "A")	//Ammonitions
 		if (point[1] < 0.4)
 			return true;
-	if(matrix[point[2]][point[0]] == "H")
+	if(matrix[point[2]][point[0]] == "H")	//First Aid Kit
 		if (point[1] < 0.4)
 			return true;
-	if(matrix[point[2]][point[0]] == "+")
+	if(matrix[point[2]][point[0]] == "+")	//Lower walls
 		if(point[1] < 1)
 			return true;
 	
