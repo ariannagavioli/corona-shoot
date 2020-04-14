@@ -79,8 +79,8 @@ function OnInit(params)
 	m_index = m_session.m_id - 1;
 	
 	/* Randomly spawn the current player in the maze */
-	// curr_level.setRandomPosition(m_manager.participants[m_index]);
-	m_manager.participants[m_index].setPosition([2, 0, 2], 90);
+	curr_level.setRandomPosition(m_manager.participants[m_index]);
+//	m_manager.participants[m_index].setPosition([2, 0, 2], 90);
 	m_system.audioFX.PlayCoutinDownFX();
 	m_system.audioFX.playAmbient();
 	// For Tests
@@ -92,7 +92,7 @@ function OnFrame()
 {
 	/* manage camera */
 	// CameraMoveMouse();
-
+	
 	/*Player Interaction*/
 	m_system.moveTrooper(m_manager.participants[m_index], curr_level);
 	m_system.pointOfView(m_manager.participants[m_index]);
@@ -109,16 +109,8 @@ function OnFrame()
 	m_system.sendKinematics(SHOT_AMMO_PDU, &m_session, m_manager.Participants[m_index].ammo.m_kinematics);
 	m_system.sendEvent(&m_session, m_manager.Participants[m_index]);
 
-	SceneBegin();
-	/* Debug camera view */
-	// if(keypressed(VK_LCONTROL)){
-	// 	curr_player.debug_mode();
-	// }	
-	// if(curr_player.debug){
-	// 	CameraMoveMouse();
-	// }
-	// curr_player.update();
 	/* code */
+	SceneBegin();
 	curr_level.draw();
 	m_system.showMyInfo(m_manager.participants[m_index]); 
 	m_system.drawResource(m_res, m_manager.participants[m_index]);

@@ -289,6 +289,9 @@ function System::MoveTrooper(trooper, level) {
 		trooper.m_kinematics.just_jumped = true;			// Need this to play the jump sound
 		trooper.m_kinematics.vertical_velocity = 4.5;
 	}
+	
+	var controlPoints = 12;
+	var boundPoints = trooper.getCircPoints(controlPoints);
 
     /* If player is jumping, update jump dynamics*/
     if(trooper.m_kinematics.is_jumping){
@@ -305,14 +308,31 @@ function System::MoveTrooper(trooper, level) {
 		
 		trooper.m_kinematics.pos[1] = new_y;
     }
-    else {
-    	var floor_distance = level.floorDistance([trooper.m_kinematics.pos[0], trooper.m_kinematics.pos[1], trooper.m_kinematics.pos[2]]);
+    else {	 		// Check whether the player is falling off
+    	var floor_distance = Array(len(boundPoints));
+    	var isOnTheFloor = false;
     	
-    	if (floor_distance > 0) {					// The player is falling, e.g. it steps away from a wall -> it falls on the ground, but doesn't jump
+    	/* Check if every bounding point is not supported by a floor */
+    	for(var i = 0; i < len(boundPoints); i++){
+    		floor_distance[i] = level.floorDistance(boundPoints[i]);
+    		if(floor_distance[i] <= 0 && floor_distance[i] >= -0.1)
+    			isOnTheFloor = true;
+    	}
+    	
+    	if (!isOnTheFloor) {					// The player is falling, e.g. it steps away from a wall -> it falls on the ground, but doesn't jump
+    		
     		trooper.m_kinematics.vertical_velocity -= SYS_GRAVITY * SYS_DELTA_T;
     		var delta_fall = trooper.m_kinematics.vertical_velocity * SYS_DELTA_T;
-    		if(abs(delta_fall) > floor_distance)
-				trooper.m_kinematics.pos[1] -= floor_distance;
+    		
+    		/* Point with max distance from the floor */
+    		var idx_max = 0;
+    		for(var i = 1; i < len(floor_distance); i++)
+    			if(floor_distance[i] > floor_distance[idx_max])
+    				idx_max = i;
+    			
+    			
+    		if(abs(delta_fall) > floor_distance[idx_max] && floor_distance[idx_max] > 0)
+				trooper.m_kinematics.pos[1] -= floor_distance[idx_max];
 			else
 				trooper.m_kinematics.pos[1] += delta_fall;
 		}
@@ -323,52 +343,56 @@ function System::MoveTrooper(trooper, level) {
     }
     
     var pos = Array(3);		// contains the next candidate position
-    var ray = trooper.getBoundingRay();
+
     pos[0] = trooper.m_kinematics.pos[0] + trooper.m_kinematics.vel * sin(trooper.m_kinematics.angle / 180.0 * PI);
     pos[1] = trooper.m_kinematics.pos[1];
     pos[2] = trooper.m_kinematics.pos[2] + trooper.m_kinematics.vel * cos(trooper.m_kinematics.angle / 180.0 * PI);
     
-    var diag_component = sqrt(2) / 2.0;		// = sin(45) = cos(45)
-
-	var x_left			= pos[0] + ray;
-	var x_left_diag		= pos[0] + ray * diag_component;
-	var x_right			= pos[0] - ray;
-	var x_right_diag	= pos[0] - ray * diag_component;
-	var z_up 			= pos[2] + ray;
-	var z_up_diag 		= pos[2] + ray * diag_component;
-	var z_bottom 		= pos[2] - ray;
-	var z_bottom_diag	= pos[2] - ray * diag_component;
-	
-	var xr_coll = level.wallCollision([x_right, trooper.m_kinematics.pos[1], trooper.m_kinematics.pos[2]]);
-	var xl_coll = level.wallCollision([x_left, trooper.m_kinematics.pos[1], trooper.m_kinematics.pos[2]]);
-	
-	var zu_coll = level.wallCollision([trooper.m_kinematics.pos[0], trooper.m_kinematics.pos[1], z_up]);
-	var zb_coll = level.wallCollision([trooper.m_kinematics.pos[0], trooper.m_kinematics.pos[1], z_bottom]);
-	
-	var up_left_coll	= level.wallCollision([x_left_diag, trooper.m_kinematics.pos[1], z_up_diag]);
-	var up_right_coll	= level.wallCollision([x_right_diag, trooper.m_kinematics.pos[1], z_up_diag]);
-	var bott_left_coll	= level.wallCollision([x_left_diag, trooper.m_kinematics.pos[1], z_bottom_diag]);
-	var bott_right_coll	= level.wallCollision([x_right_diag, trooper.m_kinematics.pos[1], z_bottom_diag]);
-	
-	var angle = ( trooper.m_kinematics.angle + 360 );
+    var left_x = Array(controlPoints / 2 - 1);
+    var right_x = Array(controlPoints / 2 - 1);
+    var up_z = Array(controlPoints / 2 - 1);
+    var bottom_z = Array(controlPoints / 2 - 1);
+    
+    for(var i = 0; i < controlPoints; i++){
+    	if(  i > 0 && i < controlPoints / 2 )
+    		left_x[i - 1] = boundPoints[i];
+    	if( i > controlPoints / 2 )
+    		right_x[ i - controlPoints / 2 - 1] = boundPoints[i];
+    	if( i < controlPoints / 4 )
+    		up_z[i] = boundPoints[i];
+    	if( i > (controlPoints * 3 / 4) )
+    		up_z[i - controlPoints / 2 - 1] = boundPoints[i];
+    	if( i > controlPoints / 4 && i < controlPoints * 3 / 4)
+    		bottom_z[i - controlPoints / 4 - 1] = boundPoints[i];
+    }
+    
+    var left_collision = false;
+    var right_collision = false;
+    var up_collision = false;
+    var bottom_collision = false;
+    
+    for(var i = 0; i < controlPoints / 2 - 1; i++){
+    	left_collision = left_collision || level.wallCollision(left_x[i]);
+    	right_collision = right_collision || level.wallCollision(right_x[i]);
+    	up_collision = up_collision || level.wallCollision(up_z[i]);
+    	bottom_collision = bottom_collision || level.wallCollision(bottom_z[i]);
+    }
+    
+    var angle = ( trooper.m_kinematics.angle + 360 );
 	if(trooper.m_kinematics.vel < 0)		//angle the trooper looks at is the opposite wrt direction of movement
 		angle += 180;
 	angle = angle % 360;
 	
-	var right_collision		= xr_coll || up_right_coll || bott_right_coll;
-	var left_collision		= xl_coll || up_left_coll || bott_left_coll;
-	var up_collision		= zu_coll || up_right_coll || up_left_coll;
-	var bottom_collision	= zb_coll || bott_right_coll || bott_left_coll;
-
 	if( (!right_collision && !left_collision)			//No collision over x
 		|| ( right_collision && angle <= 180 )			//Collision on the right, but the player is moving left
 		|| ( left_collision && angle >= 180 ) )			//Collision on the left, but the player is moving right
-    		trooper.m_kinematics.pos[0] = pos[0];	// update x-component
+    		trooper.m_kinematics.pos[0] = pos[0];		// update x-component
     
     if( (!up_collision && !bottom_collision)							//No collision over z
     	|| ( up_collision && ( angle >= 90 && angle <= 270 ) )			//Collision on the top, but player is moving down
     	|| ( bottom_collision && ( angle <= 90 || angle >= 270 ) ) )	//Collision on the bottom, but player is moving up
-    		trooper.m_kinematics.pos[2] = pos[2];	// update z-component
+    		trooper.m_kinematics.pos[2] = pos[2];						// update z-component
+	
 }
 
 function System::updateTrooper(trooper) {
