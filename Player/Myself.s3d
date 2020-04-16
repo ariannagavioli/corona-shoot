@@ -23,11 +23,15 @@ class Myself { // Me
 	var ammo;
 	var shot;
 	var boundRay;
+	var localBB;
+	var boundPoints;
 	var winner;
 	var closeEnoughToBeDrawn;
 // Methods
 	setPosition(pos, angle);
 	getBoundingRay();
+	getCircPoints(quantity);
+	getBoundPoints();
 };
 
 function Myself::Myself() {
@@ -43,8 +47,9 @@ function Myself::Myself() {
 	winner = -1;
 	closeEnoughToBeDrawn = true;
 
-	var boundPoints = Array(4);			//Bounding pointss is composed by 4 3-d points
-	var LocalBB = Array(4);				//Bounding pointss is composed by 4 3-d points
+	
+	boundPoints = Array(4);			//Bounding pointss is composed by 4 3-d points
+	LocalBB = Array(4);				//Bounding pointss is composed by 4 3-d points
 	for(var i = 0; i < 4; i++) {
 		boundPoints[i] = Array(3);
 		LocalBB[i] = Array(3);
@@ -54,9 +59,9 @@ function Myself::Myself() {
 	/* min_x, min_y, min_z, max_x, max_y, max_z
 	 * We only take in consideration the points with min_y
 	 */
-	LocalBB[0] = [boundingBox[0], boundingBox[1], boundingBox[2]];
-	LocalBB[1] = [boundingBox[0], boundingBox[1], boundingBox[5]];
-	LocalBB[2] = [boundingBox[3], boundingBox[1], boundingBox[2]];
+	LocalBB[0] = [boundingBox[0], boundingBox[1], boundingBox[2]];	
+	LocalBB[1] = [boundingBox[0], boundingBox[1], boundingBox[5]];	
+	LocalBB[2] = [boundingBox[3], boundingBox[1], boundingBox[2]];	
 	LocalBB[3] = [boundingBox[3], boundingBox[1], boundingBox[5]];
 	
 	
@@ -72,6 +77,9 @@ function Myself::Myself() {
 	}
 	
 	boundRay = sqrt(max_x * max_x + max_z * max_z);
+	
+	for(var i = 0; i < len(LocalBB); i++)
+		boundPoints[i] = LocalBB[i];
 }
 
 function Myself::setPosition(pos, angle) {
@@ -81,7 +89,42 @@ function Myself::setPosition(pos, angle) {
 
 function Myself::getBoundingRay() {
 	return boundRay;	
+}
+
+function Myself::getCircPoints(quantity) {
+	var circPoints = Array(quantity);
+	for(var i = 0; i < quantity; i++)
+		circPoints[i] = Array(3);
 	
+	var step_angle = 2.0 * PI / (quantity);
+	
+	for(var i = 0; i < len(circPoints); i++){
+		var angle = step_angle * i;
+		circPoints[i][0] = m_kinematics.pos[0] + boundRay * sin(angle);
+		circPoints[i][1] = m_kinematics.pos[1];
+		circPoints[i][2] = m_kinematics.pos[2] + boundRay * cos(angle);
+	}
+	
+	return circPoints;
+}
+
+function MySelf::getBoundPoints() {
+	/* Compute the positions of the bounding box points wrt global reference frame
+	 *  -> rototranslation, based on position and rotation of the player
+	 * x = pos.x + x' * cos(a) - z' * sen(a)
+	 * z = pos.z + x' * sen(a) + z' * cos(a)
+	 * where x' and z' are the point coordinates in the local reference frame
+	 */
+	
+	var angle = - m_kinematics.angle * PI / 180.0;
+	
+	for(var i = 0; i < len(boundPoints); i++){
+		boundPoints[i][0] = m_kinematics.pos[0] + LocalBB[i][0] * cos(angle) - LocalBB[i][2] * sin(angle);
+		boundPoints[i][1] = m_kinematics.pos[1];
+		boundPoints[i][2] = m_kinematics.pos[2] + LocalBB[i][0] * sin(angle) + LocalBB[i][2] * cos(angle);
+	}
+	
+	return boundPoints;
 }
 
 #endif
