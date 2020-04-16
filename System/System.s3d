@@ -55,7 +55,7 @@ function system::showHelp() {
 }
 
 function System::reload(trooper) {
-	if(KeyPressed("r") && trooper.ammo.readyToReload) {
+	if(KeyPressed("r") && trooper.ammo.readyToReload && trooper.life.life > 0) {
 		trooper.ammo.reload();
 		trooper.ammo.readyToReload = false;
 	}
@@ -71,17 +71,18 @@ function System::updateHealth(m_sess, trooper) {
 			trooper.life.life--;
 			prevTime = currTime;
 		}
+		
+		if (KeyPressed("h") && trooper.life.readyToTakePainkillers) {
+			trooper.life.life = MAX_LIFE_POINTS;
+			trooper.life.readyToTakePainkillers = false;
+		}  
+
+		if (KeyPressed("e") && trooper.life.readyToTakePainkillers) {
+			trooper.winner = trooper.tagID.number;
+			trooper.life.readyToTakePainkillers = false;
+		}
 	}
 
-	if (KeyPressed("h") && trooper.life.readyToTakePainkillers) {
-		trooper.life.life = MAX_LIFE_POINTS;
-		trooper.life.readyToTakePainkillers = false;
-	}  
-
-	if (KeyPressed("e") && trooper.life.readyToTakePainkillers) {
-		trooper.winner = trooper.tagID.number;
-		trooper.life.readyToTakePainkillers = false;
-	}
 }
 
 function System::drawResource(res, me) {
@@ -120,7 +121,7 @@ function System::shoot(trooper) {
 	// In order to shoot the player has to click on the left Button of the mouse 
 	// But also the last bullet/rocket had to be done, and the trooper's bag has to
 	// have at least one bullet in whatever gun the trooper is carrying right now
-	if(Mouse.ButtonL && trooper.ammo.life == 0 && trooper.ammo.bag() != 0) {	// When Left Mouse Button is clicked and the 
+	if(Mouse.ButtonL && trooper.ammo.life == 0 && trooper.ammo.bag() != 0 && trooper.life.life > 0) {	// When Left Mouse Button is clicked and the 
 		/* Computing the Weapong Direction in order to execute the trajectory of the wweapong */
 		var angleTmp = trooper.m_kinematics.angle * PI / 180.0;
 		var direction = [sin(angleTmp), 0, cos(angleTmp)];
@@ -283,7 +284,7 @@ function System::MoveTrooper(trooper, level) {
 
 	if (KeyPressed("w")) {
 		trooper.m_kinematics.vel = TROOPER_STEP_VELOCITY;
-		audioFX.playEncouraging();	// This only will be played once, at the first step
+		audioFX.playEncouraging();	// This will be played only once, at the first step
 	}
 	else if (KeyPressed("s"))
 		trooper.m_kinematics.vel = -TROOPER_STEP_VELOCITY;

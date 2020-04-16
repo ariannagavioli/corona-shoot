@@ -77,7 +77,7 @@ function OnInit(params)
 		// TODO: OutputLN("Server full");
 	// TODO: }
 	m_index = m_session.m_id - 1;
-	
+	m_manager.participants[m_index].setBoundingBox(m_system.TD_manager.getBoundingBox());
 	/* Randomly spawn the current player in the maze */
 	curr_level.setRandomPosition(m_manager.participants[m_index]);
 //	m_manager.participants[m_index].setPosition([2, 0, 2], 90);

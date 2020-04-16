@@ -12,6 +12,7 @@ class TrooperDrawerManager {
 	drawFrame(frame);
 	drawStill();
 	drawBullet(pos, size);
+	getBoundingBox();
 };
 
 function TrooperDrawerManager::TrooperDrawerManager() {
@@ -36,4 +37,8 @@ function TrooperDrawerManager::drawStill() {
 function TrooperDrawerManager::drawBullet(pos, size) {
 	bullet_.draw(pos, size);
 }
+function TrooperDrawerManager::getBoundingBox() {
+	return drawable.body.lowerBody.mesh.getBoundingBox();
+}	
+
 #endif

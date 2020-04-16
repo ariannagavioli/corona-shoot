@@ -3,7 +3,6 @@
 #define MYSELF_S3D 
 
 #include "Identification.s3d"
-// #include "../RenderEntity/DrawableTrooper.s3d"
 #include "../RenderEntity/TrooperDrawerManager.s3d"
 #include "../Kinematics/Kinematics.s3d"
 #include "Health.s3d"
@@ -14,7 +13,6 @@ class Myself { // Me
 // Entity - Components 
 	var tagID;
 	var weaponSwitch; 
-	var drawable;
 	var frame;
 	var m_kinematics;
 	var life;
@@ -32,12 +30,12 @@ class Myself { // Me
 	getBoundingRay();
 	getCircPoints(quantity);
 	getBoundPoints();
+	setBoundingBox(boundingBox);
 };
 
 function Myself::Myself() {
 	tagID = Identification();
 	weaponSwitch = false;
-	drawable = DrawableTrooper();
 	frame = 0;
 	m_kinematics = PlayerKinematics();
 	life = Health();
@@ -54,32 +52,8 @@ function Myself::Myself() {
 		boundPoints[i] = Array(3);
 		LocalBB[i] = Array(3);
 	}
-	var boundingBox;
-	boundingBox = drawable.body.lowerBody.mesh.getBoundingBox();
-	/* min_x, min_y, min_z, max_x, max_y, max_z
-	 * We only take in consideration the points with min_y
-	 */
-	LocalBB[0] = [boundingBox[0], boundingBox[1], boundingBox[2]];	
-	LocalBB[1] = [boundingBox[0], boundingBox[1], boundingBox[5]];	
-	LocalBB[2] = [boundingBox[3], boundingBox[1], boundingBox[2]];	
-	LocalBB[3] = [boundingBox[3], boundingBox[1], boundingBox[5]];
-	
-	
-	/* Computing the ray of the bounding cylinder based on the bounding box */
-	var max_x = abs(LocalBB[0][0]);
-	var max_z = abs(LocalBB[0][2]);
-	
-	for (var i = 1; i < len(LocalBB); i++){
-		if(abs(LocalBB[i][0]) > max_x)
-			max_x = abs(LocalBB[i][0]);
-		if(abs(LocalBB[i][2]) > max_z)
-			max_z = abs(LocalBB[i][2]);
-	}
-	
-	boundRay = sqrt(max_x * max_x + max_z * max_z);
-	
-	for(var i = 0; i < len(LocalBB); i++)
-		boundPoints[i] = LocalBB[i];
+
+
 }
 
 function Myself::setPosition(pos, angle) {
@@ -125,6 +99,35 @@ function MySelf::getBoundPoints() {
 	}
 	
 	return boundPoints;
+}
+
+function Myself::setBoundingBox(boundingBox) {
+	// var boundingBox;
+	// boundingBox = drawable.body.lowerBody.mesh.getBoundingBox();
+	/* min_x, min_y, min_z, max_x, max_y, max_z
+	 * We only take in consideration the points with min_y
+	 */
+	LocalBB[0] = [boundingBox[0], boundingBox[1], boundingBox[2]];	
+	LocalBB[1] = [boundingBox[0], boundingBox[1], boundingBox[5]];	
+	LocalBB[2] = [boundingBox[3], boundingBox[1], boundingBox[2]];	
+	LocalBB[3] = [boundingBox[3], boundingBox[1], boundingBox[5]];
+	
+	
+	/* Computing the ray of the bounding cylinder based on the bounding box */
+	var max_x = abs(LocalBB[0][0]);
+	var max_z = abs(LocalBB[0][2]);
+	
+	for (var i = 1; i < len(LocalBB); i++){
+		if(abs(LocalBB[i][0]) > max_x)
+			max_x = abs(LocalBB[i][0]);
+		if(abs(LocalBB[i][2]) > max_z)
+			max_z = abs(LocalBB[i][2]);
+	}
+	
+	boundRay = sqrt(max_x * max_x + max_z * max_z);
+	
+	for(var i = 0; i < len(LocalBB); i++)
+		boundPoints[i] = LocalBB[i];
 }
 
 #endif

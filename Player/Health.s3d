@@ -6,14 +6,12 @@
 
 class Health {
 	var life;
-	var alive;
 	var dstToCure;	
 	var readyToTakePainkillers;
 };
 
 function Health::Health() {
 	life = MAX_LIFE_POINTS;
-	alive = true;
 	dstToCure = -1.0;
 	readyToTakePainkillers = false;
 }
