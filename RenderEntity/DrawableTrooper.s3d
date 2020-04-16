@@ -23,8 +23,8 @@ function DrawableTrooper::DrawableTrooper() {
 	weapon = DrawableArmament(body.scaleMeasure);
 
 	ammo = Bullet();
-	body.addArmament(weapon.railGun.obj);
-	body.addArmament(weapon.rocketLauncher.obj);
+	body.addArmament(weapon.gun[0].obj);
+	body.addArmament(weapon.gun[1].obj);
 	frame = 0;
 }
 

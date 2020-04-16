@@ -4,34 +4,26 @@
 
 class DrawableArmament {
 // Properties
-	var railGun;		// RenderEntity()
-	var rocketLauncher;	// RenderEntity()
-	var weaponOnHands; 	// What to draw
+	var gun;		// RenderEntity()
 // Methods
 	toggle();			// switch between guns
+	enable(type);
 };
 
 function DrawableArmament::DrawableArmament(scale_factor) { // the scale factor is given for a parent
-	rocketLauncher = RenderEntity("rocketl.AAM");
-	railGun = RenderEntity("railgun.AAM");
+	gun = array(2);
+	gun[0] = RenderEntity("railgun.AAM");
+	gun[1] = RenderEntity("rocketl.AAM");
 
-	rocketLauncher.scale(scale_factor);
-	railgun.scale(scale_factor);	
+	gun[0].scale(scale_factor);
+	gun[1].scale(scale_factor);	
 
-	rocketLauncher.hide();
-	weaponOnHands = true;
+	gun[1].hide();
 }
 
-function DrawableArmament::toggle() {
-	if (weaponOnHands) {
-		weaponOnHands = false;
-		railgun.hide();
-		rocketLauncher.unhide();
-	} else {
-		weaponOnHands = true;
-		rocketLauncher.hide();
-		railgun.unhide();
-	}
+function DrawableArmament::enable(type) {
+	gun[1 - type].hide();
+	gun[type].unhide();
 }
 
 #endif

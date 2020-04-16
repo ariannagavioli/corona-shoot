@@ -17,14 +17,16 @@
 class System {
 	// System components
 	var audioFX;
+	var TD_manager;
 	/* Render actions */
 	drawTrooper(trooper, me);
 	updateTrooper(trooper);
-	showScoreTable(j, obj);
+	showDistanceTable(j, obj);
 	showMyInfo(myAlias);
 	drawResource(res, me);
 
 	/* Physics */
+	computeDistances(troopers, index, c_pos);
 	updateBullet(trooper, id, level);
 
 	/* Human interaction */
@@ -43,6 +45,7 @@ class System {
 
 function System::System() {
 	audioFX = AudioFXSystem();
+	TD_manager = TrooperDrawerManager();
 	ConsoleSetDefault();	
 }
 
@@ -143,7 +146,7 @@ function checkBulletHit(troopers, id, pos) {
 	var length = len(troopers);
 	var d;
 	for (var i = 0; i < length; ++i) {
-		if ((i != id && (troopers[i].tagID.number > 0))) {	// if it's an Available enemy
+		if ((i != id) && (troopers[i].tagID.number > 0)) {	// if it's an Available enemy
 			d = modulus(troopers[i].m_kinematics.pos - pos);	// compute distance from bullet to other players
 			if (d < 1.4) {	// if it's smaller than this, then the enemy was reached
 				troopers[id].shot = i; // Myself gets who was shot
@@ -178,8 +181,10 @@ function System::updateBullet(troopers, id, level) {
 
 function System::sendEvent(m_ses, trooper) {
 	/* Send weapon switch */
-	if(trooper.weapon)	// sends if weapon was switch
+	if(trooper.weaponSwitch) {	// sends if weapon was switch
 		m_ses.sendEvent(WEAPON_SWITCH_PDU);
+		trooper.weaponSwitch = false;
+	}
 
 	if(trooper.m_kinematics.just_jumped)	// sends if jumping has executed
 		m_ses.sendEvent(JUMP_SCREAM_PDU);
@@ -222,36 +227,42 @@ function System::sendKinematics(kinematics_owner, m_ses, obj) {
 	m_ses.sendKinematics(kinematics_owner, obj);
 }
 
-function System::showScoreTable(j, obj) {
-	ConsoleText(0.05, 0.9 - 0.03*j, obj.tagID.name + "'s away from cure: " + str(obj.life.life));
-}
+function System::showDistanceTable(j, obj) {
+	if (obj.life.dstToCure > 0) 
+		ConsoleText(0.05, 0.9 - 0.03*j, obj.tagID.name + "'s away from Cure: " + str(floor(obj.life.dstToCure)));
+	else 
+		ConsoleText(0.05, 0.9 - 0.03*j, obj.tagID.name + "'s away from Cure: Error");
+}		
 
 function System::selectWeapon(trooper) {
 	static var pressed = false;
 	var pressed2 = KeyPressed("f"); 
 
 	if((pressed == false) && (pressed2 == true)) {
-		trooper.weapon = true;
-		if (trooper.ammo.type == RAILGUN_T) trooper.ammo.type = ROCKETLAUNCHER_T;
-		else trooper.ammo.type = RAILGUN_T;
+		trooper.weaponSwitch = true;
+		trooper.ammo.type = 1 - trooper.ammo.type;
+		// if (trooper.ammo.type == RAILGUN_T) trooper.ammo.type = ROCKETLAUNCHER_T;
+		// else trooper.ammo.type = RAILGUN_T;
 	}
 	pressed = pressed2;
 }
 
 function System::drawTrooper(trooper, me) {
-	if (trooper.weapon) {
-		trooper.drawable.weapon.toggle();
-		trooper.weapon = false;
-	} 
-
+	TD_manager.setWeapon(trooper.ammo.type);
+	// if (trooper.weapon) {
+	// 	trooper.drawable.weapon.toggle();
+	// 	trooper.weapon = false;
+	// } 
+	TD_manager.setPosition(trooper.m_kinematics.pos, trooper.m_kinematics.angle);
+	// trooper.drawable.setPosition(trooper.m_kinematics.pos, trooper.m_kinematics.angle);
 	if (trooper.m_kinematics.vel != 0) {
-		trooper.drawable.draw(START_WALK_SWAT + trooper.drawable.frame);
+		TD_manager.drawFrame(trooper.frame);
+		// trooper.drawable.draw(START_WALK_SWAT + trooper.drawable.frame);
 		// audioFX.playSteps(trooper.m_kinematics, me.m_kinematics);
 	}
 	else 
-		trooper.drawable.draw(0);
-	
-	trooper.drawable.setPosition(trooper.m_kinematics.pos, trooper.m_kinematics.angle);
+		TD_manager.drawStill();
+		// trooper.drawable.draw(0);
 	
 	if(trooper.m_kinematics.just_jumped) {
 		audioFX.playJump(trooper.m_kinematics, me.m_kinematics);
@@ -262,7 +273,7 @@ function System::drawTrooper(trooper, me) {
 		if(trooper.ammo.life == 99)
 			audioFX.playShoot(trooper.m_kinematics, me.m_kinematics);
 
-		trooper.drawable.drawBullet(trooper.ammo.m_kinematics.pos, trooper.ammo.size());
+		TD_manager.drawBullet(trooper.ammo.m_kinematics.pos, trooper.ammo.size());
 	}
 }
 
@@ -373,8 +384,8 @@ function System::MoveTrooper(trooper, level) {
 
 function System::updateTrooper(trooper) {
 	if (trooper.m_kinematics.vel != 0 && !trooper.m_kinematics.is_jumping) {
-		trooper.drawable.frame += 1;
-		trooper.drawable.frame = trooper.drawable.frame % (END_WALK_SWAT - START_WALK_SWAT);
+		trooper.frame += 1;
+		trooper.frame = trooper.frame % (END_WALK_SWAT - START_WALK_SWAT);
 	}
 }
 
@@ -407,6 +418,22 @@ function System::pointOfView(obj) {
 		obj.cam.cam.setTarget(obj.m_kinematics.pos + [0, 1.6, 0]);
 	}
 	obj.cam.cam.setPosition(obj.cam.pos);
+}
+
+function System::computeDistances(troopers, index, c_pos) {
+	var length = len(troopers);
+	var m_pos = troopers[index].m_kinematics.pos;
+	var d;
+	for (var i = 0; i < length; ++i) {
+		if ((i != index) && (troopers[i].tagID.number > 0)) {
+			d = modulus(troopers[i].m_kinematics.pos - m_pos);
+			if (d < 30.0) 
+				troopers[i].closeEnoughToBeDrawn = true;
+			else 
+				troopers[i].closeEnoughToBeDrawn = false;
+			troopers[i].life.dstToCure = modulus(troopers[i].m_kinematics.pos - c_pos);
+		}
+	}	
 }
 
 #endif

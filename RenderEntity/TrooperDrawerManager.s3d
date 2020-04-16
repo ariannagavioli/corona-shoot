@@ -1,0 +1,39 @@
+#ifndef TROOPER_DRAWER_MANAGER_S3D
+#define TROOPER_DRAWER_MANAGER_S3D
+
+#include "../RenderEntity/DrawableTrooper.s3d"
+
+class TrooperDrawerManager {
+	var drawable;
+	var bullet_;
+
+	setWeapon(type);
+	setPosition(pos, angle);
+	drawFrame(frame);
+	drawStill();
+	drawBullet(pos, size);
+};
+
+function TrooperDrawerManager::TrooperDrawerManager() {
+	drawable = DrawableTrooper();
+	bullet_ = Bullet(); 
+}
+
+function TrooperDrawerManager::setWeapon(type) {
+	drawable.weapon.enable(type);
+}
+
+function TrooperDrawerManager::setPosition(pos, angle) {
+	drawable.setPosition(pos, angle);
+}
+
+function TrooperDrawerManager::drawFrame(frame) {
+	drawable.draw(START_WALK_SWAT + frame);
+}
+function TrooperDrawerManager::drawStill() {
+	drawable.draw(0);
+}
+function TrooperDrawerManager::drawBullet(pos, size) {
+	bullet_.draw(pos, size);
+}
+#endif

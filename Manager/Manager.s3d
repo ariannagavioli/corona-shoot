@@ -8,6 +8,7 @@ class Manager {
 
 	addParticipant(num, name);
 	rmParticipant(num);
+	toDrawOrNotToDraw(i);
 };
 
 function Manager::Manager(numPlayers) {
@@ -28,6 +29,13 @@ function Manager::rmParticipant(num) {
 	availables -= 1;
 	participants[num - 1].tagID.number = - 1;
 	participants[num - 1].tagID.name = "";
+}
+
+function Manager::toDrawOrNotToDraw(i) {
+	if (participants[i].tagID.number > 0 && participants[i].closeEnoughToBeDrawn)
+		return true;
+	else
+		return false;
 }
 
 #endif

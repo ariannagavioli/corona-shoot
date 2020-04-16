@@ -3,7 +3,8 @@
 #define MYSELF_S3D 
 
 #include "Identification.s3d"
-#include "../RenderEntity/DrawableTrooper.s3d"
+// #include "../RenderEntity/DrawableTrooper.s3d"
+#include "../RenderEntity/TrooperDrawerManager.s3d"
 #include "../Kinematics/Kinematics.s3d"
 #include "Health.s3d"
 #include "Camera.s3d"
@@ -12,8 +13,9 @@
 class Myself { // Me
 // Entity - Components 
 	var tagID;
-	var weapon; 
+	var weaponSwitch; 
 	var drawable;
+	var frame;
 	var m_kinematics;
 	var life;
 	var jumping;
@@ -22,6 +24,7 @@ class Myself { // Me
 	var shot;
 	var boundRay;
 	var winner;
+	var closeEnoughToBeDrawn;
 // Methods
 	setPosition(pos, angle);
 	getBoundingRay();
@@ -29,14 +32,16 @@ class Myself { // Me
 
 function Myself::Myself() {
 	tagID = Identification();
-	weapon = false;
+	weaponSwitch = false;
 	drawable = DrawableTrooper();
+	frame = 0;
 	m_kinematics = PlayerKinematics();
 	life = Health();
 	cam = Camera();
 	ammo = Ammunition();
 	shot = -1;
 	winner = -1;
+	closeEnoughToBeDrawn = true;
 
 	var boundPoints = Array(4);			//Bounding pointss is composed by 4 3-d points
 	var LocalBB = Array(4);				//Bounding pointss is composed by 4 3-d points

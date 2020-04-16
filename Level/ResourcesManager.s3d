@@ -22,7 +22,9 @@ class ResourceManager {
 	var res;
 	var length;
 	var drawable;
+	var curePos;
 	draw(i);
+	getCurePos();
 };
 
 function ResourceManager::ResourceManager(fileName) {
@@ -61,6 +63,7 @@ function ResourceManager::ResourceManager(fileName) {
 				aadd(res, Resource());
 				res[length].pos = [k, 0, i+0.5];
 				res[length].type = CURE_WIN;
+				curePos = res[length].pos;
 				length++;
 			}
 		}
@@ -78,5 +81,9 @@ function ResourceManager::draw(i) {
 	var toDraw = res[i].type;
 	drawable[toDraw].obj.setPosition(res[i].pos);
 	drawable[toDraw].obj.draw();
+}
+
+function ResourceManager::getCurePos() {
+	return curePos;
 }
 #endif

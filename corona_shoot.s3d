@@ -80,7 +80,7 @@ function OnInit(params)
 	
 	/* Randomly spawn the current player in the maze */
 	// curr_level.setRandomPosition(m_manager.participants[m_index]);
-	m_manager.participants[m_index].setPosition([2, 0, 2], 90);
+	m_manager.participants[m_index].setPosition([51, 0, 2], 90);
 	m_system.audioFX.PlayCoutinDownFX();
 	m_system.audioFX.playAmbient();
 	// For Tests
@@ -102,6 +102,7 @@ function OnFrame()
 	m_system.updateHealth(m_session, m_manager.Participants[m_index]);
 
 	/* Physics */
+	m_system.computeDistances(m_manager.Participants, m_index, m_res.getCurePos());
 	m_system.updateBullet(m_manager.Participants, m_index, curr_level);
 
 	/* Network */
@@ -127,12 +128,13 @@ function OnFrame()
 	var j = 0;
 	for (var i = 0; i < MAX_NUM_PLAYERS; ++i) {
 		/* Just the troopers with id bigger than 0 */
-		if (m_manager.participants[i].tagID.number > 0) {
+		// if (m_manager.participants[i].tagID.number > 0) {
+		if (m_manager.ToDrawOrNotToDraw(i)) {
 			/* COMPULSARY SYSTEMS FOR MYSELF*/
 			m_system.updateTrooper(m_manager.participants[i]);
 			// Our drawings
 			m_system.drawTrooper(m_manager.participants[i], m_manager.participants[m_index]);
-			m_system.showScoreTable(j, m_manager.participants[i]);
+			m_system.showDistanceTable(j, m_manager.participants[i]);
 			j++;
 		}
 	}
@@ -169,7 +171,7 @@ function OnTimer()
 		/* Switch enemy's weapon */
 		if(recvData[0] == WEAPON_SWITCH_PDU) {
 			var incoming_id = recvData[1] - 1;
-			m_manager.participants[incoming_id].weapon = true;
+			m_manager.participants[incoming_id].ammo.type = 1 - m_manager.participants[incoming_id].ammo.type;
 		}
 
 		/* Enemy's shoot */ 
