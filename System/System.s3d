@@ -379,10 +379,10 @@ function System::MoveTrooper(trooper, level) {
     pos = trooper.m_kinematics.pos + trooper.m_kinematics.vel * orientation;
     trooper.m_kinematics.orientation = orientation;
 
-    var left_x 		= Array(controlPoints / 2 - 1);
-    var right_x 	= Array(controlPoints / 2 - 1);
-    var up_z 		= Array(controlPoints / 2 - 1);
-    var bottom_z 	= Array(controlPoints / 2 - 1);
+	var left_x = Array(controlPoints / 2 - 1);
+	var right_x = Array(controlPoints / 2 - 1);
+	var up_z = Array(controlPoints / 2 - 1);
+	var bottom_z = Array(controlPoints / 2 - 1);
     
     for(var i = 0; i < controlPoints; i++){
     	if(  i > 0 && i < controlPoints / 2 )
