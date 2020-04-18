@@ -12,7 +12,6 @@ class Enemy {
 // Entity - Components 
 	var tagID;
 	var weaponSwitch;		// 0 or 1
-	// var drawable;
 	var frame;
 	var m_kinematics;
 	var life;
@@ -24,7 +23,6 @@ class Enemy {
 function Enemy::Enemy() {
 	tagID = Identification();
 	weaponSwitch = false;
-	// drawable = DrawableTrooper();
 	frame = 0;
 	m_kinematics = PlayerKinematics();
 	life = Health();

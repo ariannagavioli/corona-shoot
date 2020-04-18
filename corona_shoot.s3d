@@ -66,24 +66,19 @@ function OnInit(params)
 	m_res = ResourceManager("level.txt");
 
 	m_manager = Manager(MAX_NUM_PLAYERS);
-	var successfulSignUp = false;
-	// m_session = Session();
+
 	m_session.connectTCP(SERVER_IP, SERVER_PORT);
-	m_session.signUp(&successfulSignUp);
-	// TODO: Window for server rejection
-	// TODO: if (successfulSignUp) {
-		 m_session.queryParticipants(&m_manager);
-	// TODO: } else {
-		// TODO: OutputLN("Server full");
-	// TODO: }
+	m_session.signUp(NULL);
+	m_session.queryParticipants(&m_manager);
+
 	m_index = m_session.m_id - 1;
 	m_manager.participants[m_index].setBoundingBox(m_system.TD_manager.getBoundingBox());
 	/* Randomly spawn the current player in the maze */
 	curr_level.setRandomPosition(m_manager.participants[m_index]);
-//	m_manager.participants[m_index].setPosition([2, 0, 2], 90);
 	m_system.audioFX.PlayCoutinDownFX();
 	m_system.audioFX.playAmbient();
-	// For Tests
+	m_session.sendKinematics(TROOPER_KINEMATICS_PDU, m_manager.Participants[m_index]);
+	// m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[m_index].m_kinematics);
 }
 
 
@@ -106,8 +101,8 @@ function OnFrame()
 	m_system.updateBullet(m_manager.Participants, m_index, curr_level);
 
 	/* Network */
-	m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[m_index].m_kinematics);			
-	m_system.sendKinematics(SHOT_AMMO_PDU, &m_session, m_manager.Participants[m_index].ammo.m_kinematics);
+	m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[m_index]);			
+	m_system.sendKinematics(BULLET_KINEMATICS_PDU, &m_session, m_manager.Participants[m_index].ammo);
 	m_system.sendEvent(&m_session, m_manager.Participants[m_index]);
 
 	/* code */
@@ -160,22 +155,35 @@ function OnTimer()
 			m_manager.participants[incoming_id].m_kinematics.angle = recvData[7];
 		}
 
-		/* Switch enemy's weapon */
+		// Switch enemy's weapon 
 		if(recvData[0] == WEAPON_SWITCH_PDU) {
 			var incoming_id = recvData[1] - 1;
 			m_manager.participants[incoming_id].ammo.type = 1 - m_manager.participants[incoming_id].ammo.type;
 		}
 
-		/* Enemy's shoot */ 
-		if(recvData[0] == SHOT_AMMO_PDU) {
+		// Enemy's bullet trajectory 
+		if(recvData[0] == BULLET_KINEMATICS_PDU) {
 			var incoming_id = recvData[1] - 1;
 			m_manager.participants[incoming_id].ammo.m_kinematics.pos[0] = recvData[2];
 			m_manager.participants[incoming_id].ammo.m_kinematics.pos[1] = recvData[3];
 			m_manager.participants[incoming_id].ammo.m_kinematics.pos[2] = recvData[4];
-			m_manager.participants[incoming_id].ammo.life = recvData[5];
+			// m_manager.participants[incoming_id].ammo.life = recvData[5];
 		}
 
-		/* Jumped event on the enemies */
+		// Enemy's fire
+		if(recvData[0] == FIRE_AMMO_PDU) {
+			var incoming_id = recvData[1] - 1;
+			m_manager.participants[incoming_id].ammo.fire = true;
+			m_manager.participants[incoming_id].ammo.life = 100;
+		}
+
+		// Enemy's bullet ended 
+		if(recvData[0] == AMMO_LIFE_ENDED) {
+			var incoming_id = recvData[1] - 1;
+			m_manager.participants[incoming_id].ammo.life = 0;
+		}
+
+		// Jumped event on the enemies
 		if(recvData[0] == JUMP_SCREAM_PDU) {
 			var incoming_id = recvData[1] - 1;
 			m_manager.participants[incoming_id].m_kinematics.just_jumped = true;	
@@ -202,10 +210,12 @@ function OnTimer()
 			var name;
 			m_session.force_receiveTCP(&name);
 			m_manager.addParticipant(recvData[2], name);
+			m_session.sendKinematics(TROOPER_KINEMATICS_PDU, m_manager.participants[m_index]);
 		}
 
 		/* Server says one just left*/
 		if(recvData[0] == LIST_RM_PDU) {
+			OutputLN("some one left");
 			m_manager.rmParticipant(recvData[2]);
 		}
 	}

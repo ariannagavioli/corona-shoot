@@ -3,13 +3,15 @@
 
 // PDU Definition Data exchange
 #define TROOPER_KINEMATICS_PDU	1
-#define SHOT_AMMO_PDU			2
-#define GOT_SHOT_PDU 			3
-#define WEAPON_PDU				4
-#define WEAPON_SWITCH_PDU		5
-#define JUMP_SCREAM_PDU			6
-#define INJURIED_PDU			7
-#define WINNER_PDU				8
+#define BULLET_KINEMATICS_PDU	2
+#define FIRE_AMMO_PDU			3
+#define AMMO_LIFE_ENDED			4
+#define GOT_SHOT_PDU 			5
+#define WEAPON_PDU				6
+#define WEAPON_SWITCH_PDU		7
+#define JUMP_SCREAM_PDU			8
+#define INJURIED_PDU			9
+#define WINNER_PDU				10
 
 // PDU Definition Autentication
 #define NAME_ME_PDU		99 	// Command to ask the server for a name

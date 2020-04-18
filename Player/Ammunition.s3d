@@ -9,19 +9,13 @@
 #define RAILGUN_T				0
 #define ROCKETLAUNCHER_T		1
 
-/* Extension of kinematics class for ammunition */
-class AmmoKinematics : Kinematics {
-	var orientation;
-};
-
-function AmmoKinematics::AmmoKinematics() {
-	orientation = [0, 0, 0];
-}
 /* End of extension */
 
 class Ammunition {
 	var m_kinematics;
 	var life;
+	var fire;
+	var ended;
 	var type;
 	var bullets;
 	var bulletSize;
@@ -34,16 +28,17 @@ class Ammunition {
 	bag();
 	size();
 	reload();
-	updatePosition();
+	nextPosition();
 	getName();
 	getDammage();
 };
 
 function Ammunition::Ammunition() {
-	m_kinematics = AmmoKinematics();
+	m_kinematics = Kinematics();
 	life = 0;
+	ended = false;
+	fire = false;
 	type = 0;
-
 	bullets = vector(2);
 	bulletSize = vector(2);
 	speed = vector(2);
@@ -89,7 +84,7 @@ function Ammunition::reload() {
 		bullets[ROCKETLAUNCHER_T] = MAX_ROCKETLAUNCHER_AMMO;
 }
 
-function Ammunition::updatePosition() {
+function Ammunition::nextPosition() {
 	return m_kinematics.pos + m_kinematics.orientation * speed[type];
 }
 

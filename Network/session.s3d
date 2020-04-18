@@ -31,7 +31,8 @@ function Session::sendEvent(event_pdu_type) {
 }
 
 function Session::sendKinematics(kinematics_owner, xyzvel) {
-	m_pdu.kinematics(kinematics_owner, xyzvel.pos, xyzvel.vel, xyzvel.angle);	// loads position into PDU
+	m_pdu.kinematics(kinematics_owner, xyzvel.m_kinematics.pos, 
+		xyzvel.m_kinematics.vel, xyzvel.m_kinematics.angle);	// loads position into PDU
 	sendTCP(m_pdu.msgPosition);
 }
 
