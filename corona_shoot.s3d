@@ -78,55 +78,57 @@ function OnInit(params)
 	m_system.audioFX.PlayCoutinDownFX();
 	m_system.audioFX.playAmbient();
 	m_session.sendKinematics(TROOPER_KINEMATICS_PDU, m_manager.Participants[m_index]);
-	// m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[m_index].m_kinematics);
 }
 
 
 
 function OnFrame()
 {
-	/* manage camera */
-	// CameraMoveMouse();
-	
-	/*Player Interaction*/
-	m_system.moveTrooper(m_manager.participants[m_index], curr_level);
-	m_system.pointOfView(m_manager.participants[m_index]);
-	m_system.selectWeapon(m_manager.Participants[m_index]);
-	m_system.shoot(m_manager.Participants[m_index]);
-	m_system.reload(m_manager.Participants[m_index]);
-	m_system.updateHealth(m_session, m_manager.Participants[m_index]);
+	if (m_manager.availables > 1) {
+		/*Player Interaction*/
+		m_system.moveTrooper(m_manager.participants[m_index], curr_level);
+		m_system.pointOfView(m_manager.participants[m_index]);
+		m_system.selectWeapon(m_manager.Participants[m_index]);
+		m_system.shoot(m_manager.Participants[m_index]);
+		m_system.reload(m_manager.Participants[m_index]);
+		m_system.updateHealth(m_session, m_manager.Participants[m_index]);
 
-	/* Physics */
-	m_system.computeDistances(m_manager.Participants, m_index, m_res.getCurePos());
-	m_system.updateBullet(m_manager.Participants, m_index, curr_level);
+		/* Physics */
+		m_system.computeDistances(m_manager.Participants, m_index, m_res.getCurePos());
+		m_system.updateBullet(m_manager.Participants, m_index, curr_level);
 
-	/* Network */
-	m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[m_index]);			
-	m_system.sendKinematics(BULLET_KINEMATICS_PDU, &m_session, m_manager.Participants[m_index].ammo);
-	m_system.sendEvent(&m_session, m_manager.Participants[m_index]);
+		/* Network */
+		m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[m_index]);			
+		m_system.sendKinematics(BULLET_KINEMATICS_PDU, &m_session, m_manager.Participants[m_index].ammo);
+		m_system.sendEvent(&m_session, m_manager.Participants[m_index]);
 
-	/* code */
-	SceneBegin();
-	curr_level.draw();
-	m_system.showMyInfo(m_manager.participants[m_index]); 
-	m_system.drawResource(m_res, m_manager.participants[m_index]);
-	m_system.showHelp();
+		/* code */
+		SceneBegin();
+		curr_level.draw();
+		m_system.showMyInfo(m_manager.participants[m_index]); 
+		m_system.drawResource(m_res, m_manager.participants[m_index]);
+		m_system.showHelp();
 
-	var j = 0;
-	for (var i = 0; i < MAX_NUM_PLAYERS; ++i) {
-		/* Just the troopers with id bigger than 0 */
-		// if (m_manager.participants[i].tagID.number > 0) {
-		if (m_manager.ToDrawOrNotToDraw(i)) {
-			/* COMPULSARY SYSTEMS FOR MYSELF*/
-			m_system.updateTrooper(m_manager.participants[i]);
-			// Our drawings
-			m_system.drawTrooper(m_manager.participants[i], m_manager.participants[m_index]);
-			m_system.showDistanceTable(j, m_manager.participants[i]);
-			j++;
+		var j = 0;
+		for (var i = 0; i < MAX_NUM_PLAYERS; ++i) {
+			/* Just the troopers with id bigger than 0 */
+			// if (m_manager.participants[i].tagID.number > 0) {
+			if (m_manager.ToDrawOrNotToDraw(i)) {
+				/* COMPULSARY SYSTEMS FOR MYSELF*/
+				m_system.updateTrooper(m_manager.participants[i]);
+				// Our drawings
+				m_system.drawTrooper(m_manager.participants[i], m_manager.participants[m_index]);
+				m_system.showDistanceTable(j, m_manager.participants[i]);
+				j++;
+			}
 		}
+		SceneEnd();
+		m_system.audioFX.playAmbient();
+	} else {
+		SceneBegin();
+		ConsoleWaiting();
+		SceneEnd();
 	}
-	SceneEnd();
-	m_system.audioFX.playAmbient();
 }
 
 
@@ -215,7 +217,6 @@ function OnTimer()
 
 		/* Server says one just left*/
 		if(recvData[0] == LIST_RM_PDU) {
-			OutputLN("some one left");
 			m_manager.rmParticipant(recvData[2]);
 		}
 	}

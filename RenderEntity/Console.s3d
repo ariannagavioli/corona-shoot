@@ -75,5 +75,16 @@ function ConsolePlotLooser() {
 	ConsoleSetDefault();	
 }
 
+function ConsoleWaiting() {
+	ConsoleColor(0.0, 0.0, 0.0, 1.0);
+	ConsoleFilledRect(0.0, 0.0, 1.0, 1.0);
+	ConsoleColor(1, 1, 1, 1);
+	ConsoleFont("Arial", 50);
+	ConsoleText(0.27, 0.60, "Waiting for");
+	ConsoleText(0.27, 0.50, "Opponents...");
+	ConsoleFont("Arial", 26);
+	ConsoleText(0.27, 0.40, "there should be at least one ");
+	ConsoleSetDefault();	
+}
 
 #endif
