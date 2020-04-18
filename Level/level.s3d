@@ -121,8 +121,8 @@ function level::setRandomPosition(obj){
 	isUp = Rand(1);
 	isLeft = Rand(1);
 	
-	x += isLeft * 3 / 4;
-	z += isUp * 3 / 4;
+	x += (isLeft * num_columns * 3 / 4);
+	z += (isUp * num_rows * 3 / 4);
 	
 	while(matrix[z][x] != " "){		// The spot is taken by a wall
 		x = Rand( (len(matrix[0]) - 1) / 4);
@@ -131,8 +131,8 @@ function level::setRandomPosition(obj){
 		isUp = Rand(1);
 		isLeft = Rand(1);
 	
-		x += isLeft * 3 / 4;
-		z += isUp * 3 / 4;
+		x += (isLeft * num_columns * 3 / 4);
+		z += (isUp * num_rows * 3 / 4);
 	}
 	
 	angle = Rand(3);
