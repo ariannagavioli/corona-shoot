@@ -414,15 +414,17 @@ function System::MoveTrooper(trooper, level) {
 		angle += 180;
 	angle = angle % 360;
 	
-	if( (!right_collision && !left_collision)			//No collision over x
-		|| ( right_collision && angle <= 180 )			//Collision on the right, but the player is moving left
-		|| ( left_collision && angle >= 180 ) )			//Collision on the left, but the player is moving right
-    		trooper.m_kinematics.pos[0] = pos[0];		// update x-component
+	if( !(right_collision && left_collision)				//Next position is not entirely in a wall
+		&& ( (!right_collision && !left_collision)			//No collision over x
+		|| ( right_collision && angle <= 180 )				//Collision on the right, but the player is moving left
+		|| ( left_collision && angle >= 180 ) ) )			//Collision on the left, but the player is moving right
+    		trooper.m_kinematics.pos[0] = pos[0];			// update x-component
     
-    if( (!up_collision && !bottom_collision)							//No collision over z
-    	|| ( up_collision && ( angle >= 90 && angle <= 270 ) )			//Collision on the top, but player is moving down
-    	|| ( bottom_collision && ( angle <= 90 || angle >= 270 ) ) )	//Collision on the bottom, but player is moving up
-    		trooper.m_kinematics.pos[2] = pos[2];						// update z-component
+    if( !(up_collision && bottom_collision) 								//Next position is not entirely in a wall
+    	&& ( (!up_collision && !bottom_collision)							//No collision over z
+    	|| ( up_collision && ( angle >= 90 && angle <= 270 ) )				//Collision on the top, but player is moving down
+    	|| ( bottom_collision && ( angle <= 90 || angle >= 270 ) ) ) )		//Collision on the bottom, but player is moving up
+    		trooper.m_kinematics.pos[2] = pos[2];							// update z-component
 	
 }
 
