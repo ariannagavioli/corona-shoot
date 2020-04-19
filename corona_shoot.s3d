@@ -84,7 +84,7 @@ function OnInit(params)
 
 function OnFrame()
 {
-	if (m_manager.availables > 1) {
+	if (m_manager.allowAccess) {
 		/*Player Interaction*/
 		m_system.moveTrooper(m_manager.participants[m_index], curr_level);
 		m_system.pointOfView(m_manager.participants[m_index]);
@@ -118,6 +118,8 @@ function OnFrame()
 				m_system.updateTrooper(m_manager.participants[i]);
 				// Our drawings
 				m_system.drawTrooper(m_manager.participants[i], m_manager.participants[m_index]);
+			}
+			if (m_manager.participants[i].tagID.number > 0) {
 				m_system.showDistanceTable(j, m_manager.participants[i]);
 				j++;
 			}
@@ -128,6 +130,7 @@ function OnFrame()
 		SceneBegin();
 		ConsoleWaiting();
 		SceneEnd();
+		if(m_manager.availables > 1) m_manager.allowAccess = true;
 	}
 }
 
@@ -176,13 +179,13 @@ function OnTimer()
 		if(recvData[0] == FIRE_AMMO_PDU) {
 			var incoming_id = recvData[1] - 1;
 			m_manager.participants[incoming_id].ammo.fire = true;
-			m_manager.participants[incoming_id].ammo.life = 100;
+			m_manager.participants[incoming_id].ammo.alive = true;
 		}
 
 		// Enemy's bullet ended 
 		if(recvData[0] == AMMO_LIFE_ENDED) {
 			var incoming_id = recvData[1] - 1;
-			m_manager.participants[incoming_id].ammo.life = 0;
+			m_manager.participants[incoming_id].ammo.alive = false;
 		}
 
 		// Jumped event on the enemies

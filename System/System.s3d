@@ -121,11 +121,16 @@ function System::shoot(trooper) {
 	// In order to shoot the player has to click on the left Button of the mouse 
 	// But also the last bullet/rocket had to be done, and the trooper's bag has to
 	// have at least one bullet in whatever gun the trooper is carrying right now
-	if(Mouse.ButtonL && trooper.ammo.life == 0 && trooper.ammo.bag() != 0 && trooper.life.life > 0) {	// When Left Mouse Button is clicked and the 
+	if(Mouse.ButtonL 
+		&& !trooper.ammo.alive
+		&& trooper.ammo.bag() != 0 
+		&& trooper.life.life > 0
+		&& trooper.ammo.charging == 0) {	// When Left Mouse Button is clicked and the 
 		/* Computing the Weapong Direction in order to execute the trajectory of the wweapon */
 		trooper.ammo.m_kinematics.pos = trooper.m_kinematics.pos;
-		trooper.ammo.life = 100;
+		trooper.ammo.alive = true;
 		trooper.ammo.fire = true;
+		trooper.ammo.charging = 50;
 		/* Given the the bullet/rocket is not coming from the center of the soldier but from the canon of the weapon, 
 		the right position has to be set*/
 		trooper.ammo.m_kinematics.pos[0] += -trooper.m_kinematics.orientation[2] * 0.2;
@@ -161,22 +166,21 @@ function System::updateBullet(troopers, id, level) {
 	// enemies
 	var me = troopers[id];
 	me.ammo.m_kinematics.send = false;
-	if(me.ammo.life > 0) {
-		me.ammo.life--;
+	if(me.ammo.alive) {
 		var tmpPos = me.ammo.nextPosition();	// gets possible next position
 		var wall = level.wallCollision(tmpPos);	// detects if there's a wall collision
 		var coll = checkBulletHit(troopers, id, tmpPos);	// detects if there's with the potential position
 
-		if (wall || coll) {	// Either a collision against wall or enemy, 
-			me.ammo.life = 0;	// the life is set to zero
-		}
-		else {
+		if (wall || coll)	// Either a collision against wall or enemy, 
+			me.ammo.alive = false;	// the life is clean
+		else 
 			me.ammo.m_kinematics.pos = tmpPos;	// if no collision, the bullet keeps going  
-			me.ammo.m_kinematics.vel = me.ammo.life;
-		}
-		if (me.ammo.life == 0) me.ammo.ended = true;
+
+		if (!me.ammo.alive) me.ammo.ended = true;
 		me.ammo.m_kinematics.send = true;
 	}
+	if (me.ammo.charging > 0) 
+		me.ammo.charging--;
 }
 
 
@@ -211,7 +215,7 @@ function System::sendEvent(m_ses, trooper) {
 
 function System::showMyInfo(trooper) {
 	// My Name
-	ConsoleText(0.43, 0.9, "Welcome Back " + trooper.tagID.name);
+	ConsoleText(0.43, 0.95, "Welcome Back " + trooper.tagID.name);
 	// My health
 	ConsoleText(0.05, 0.10, "Health " + str(trooper.life.life));
 	// My Ammution Available
@@ -273,8 +277,7 @@ function System::drawTrooper(trooper, me) {
 		trooper.m_kinematics.just_jumped = false;
 	}
 
-	if(trooper.ammo.life > 0) {
-		OutputLN("Im herre ", trooper.ammo.life);
+	if(trooper.ammo.alive) {
 		if(trooper.ammo.fire) {
 			audioFX.playShoot(trooper.m_kinematics, me.m_kinematics);
 			trooper.ammo.fire = false;

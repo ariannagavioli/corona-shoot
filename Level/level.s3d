@@ -137,7 +137,8 @@ function level::setRandomPosition(obj){
 	
 	angle = Rand(3);
 	angle *= 90;					// either 0°, 90*, 180° or 270°
-	
+	x = 2;
+	z = 2;
 	obj.setPosition([x + 0.5, 0, z + 0.5],angle);
 }
 

@@ -13,7 +13,8 @@
 
 class Ammunition {
 	var m_kinematics;
-	var life;
+	var alive;
+	var charging;
 	var fire;
 	var ended;
 	var type;
@@ -35,7 +36,8 @@ class Ammunition {
 
 function Ammunition::Ammunition() {
 	m_kinematics = Kinematics();
-	life = 0;
+	alive = false;
+	charging = 0;
 	ended = false;
 	fire = false;
 	type = 0;
