@@ -244,7 +244,7 @@ function System::showDistanceTable(j, obj) {
 	if (obj.life.dstToCure > 0) 
 		ConsoleText(0.05, 0.9 - 0.03*j, obj.tagID.name + "'s away from Cure: " + str(floor(obj.life.dstToCure)));
 	else 
-		ConsoleText(0.05, 0.9 - 0.03*j, obj.tagID.name + "'s away from Cure: Error");
+		ConsoleText(0.05, 0.9 - 0.03*j, obj.tagID.name + "'s away from Cure: Unknown");
 }		
 
 function System::selectWeapon(trooper) {
