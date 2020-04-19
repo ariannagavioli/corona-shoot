@@ -278,12 +278,11 @@ function System::drawTrooper(trooper, me) {
 	}
 
 	if(trooper.ammo.alive) {
-		if(trooper.ammo.fire) {
-			audioFX.playShoot(trooper.m_kinematics, me.m_kinematics);
-			trooper.ammo.fire = false;
-		}
-
 		TD_manager.drawBullet(trooper.ammo.m_kinematics.pos, trooper.ammo.size());
+	}
+	if(trooper.ammo.fire) {
+		audioFX.playShoot(trooper.m_kinematics, me.m_kinematics);
+		trooper.ammo.fire = false;
 	}
 }
 
