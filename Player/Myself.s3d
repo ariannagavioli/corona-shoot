@@ -25,6 +25,7 @@ class Myself { // Me
 	var boundPoints;
 	var winner;
 	var closeEnoughToBeDrawn;
+	var closeTCP;
 // Methods
 	setPosition(pos, angle);
 	getBoundingRay();
@@ -44,7 +45,7 @@ function Myself::Myself() {
 	shot = -1;
 	winner = -1;
 	closeEnoughToBeDrawn = true;
-
+	closeTCP = false;
 	
 	boundPoints = Array(4);			//Bounding pointss is composed by 4 3-d points
 	LocalBB = Array(4);				//Bounding pointss is composed by 4 3-d points

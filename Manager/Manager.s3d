@@ -6,8 +6,10 @@ class Manager {
 	var participants;	// Either Enemy() or Myself()
 	var availables;		// Number of current Players
 	var allowAccess;	// to wait for at least two players
+	var m_index;
 	addParticipant(num, name);
 	rmParticipant(num);
+	rmThemAllButMe();
 	toDrawOrNotToDraw(i);
 };
 
@@ -30,6 +32,13 @@ function Manager::rmParticipant(num) {
 	availables -= 1;
 	participants[num - 1].tagID.number = - 1;
 	participants[num - 1].tagID.name = "";
+}
+
+function Manager::rmThemAllButMe() {
+	for (var i = 0; i < total; ++i) { // iteration over indexes
+		if (i != m_index) 
+			rmParticipant(i + 1); // passing id
+	}
 }
 
 function Manager::toDrawOrNotToDraw(i) {

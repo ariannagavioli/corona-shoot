@@ -74,9 +74,11 @@ function Session::queryParticipants(controller) {
 		p_id = dataRcv[2 + i];
 		p_idx = p_id - 1;
 		
-		if (p_id == m_id)
+		if (p_id == m_id) {
 			controller.participants[p_idx] = Myself();
-		else
+			controller.m_index = p_idx;
+		}
+		else 
 			controller.participants[p_idx] = Enemy();
 
 		controller.participants[p_idx].tagID.number = p_id;

@@ -84,43 +84,41 @@ function OnInit(params)
 
 function OnFrame()
 {
-	if (m_manager.allowAccess) {
+	// if (m_manager.allowAccess) {
+	if (true) {
 		/*Player Interaction*/
-		m_system.moveTrooper(m_manager.participants[m_index], curr_level);
-		m_system.pointOfView(m_manager.participants[m_index]);
-		m_system.selectWeapon(m_manager.Participants[m_index]);
-		m_system.shoot(m_manager.Participants[m_index]);
-		m_system.reload(m_manager.Participants[m_index]);
-		m_system.updateHealth(m_session, m_manager.Participants[m_index]);
+		m_system.moveTrooper(m_manager, curr_level);
+		m_system.pointOfView(m_manager);
+		m_system.selectWeapon(m_manager);
+		m_system.shoot(m_manager);
+		m_system.reload(m_manager);
+		m_system.updateHealth(m_manager);
 
 		/* Physics */
-		m_system.computeDistances(m_manager.Participants, m_index, m_res.getCurePos());
-		m_system.updateBullet(m_manager.Participants, m_index, curr_level);
+		m_system.computeDistances(m_manager, m_res.getCurePos());
+		m_system.updateBullet(m_manager, curr_level);
 
 		/* Network */
-		m_system.sendKinematics(TROOPER_KINEMATICS_PDU, &m_session, m_manager.Participants[m_index]);			
-		m_system.sendKinematics(BULLET_KINEMATICS_PDU, &m_session, m_manager.Participants[m_index].ammo);
-		m_system.sendEvent(&m_session, m_manager.Participants[m_index]);
-
+		m_system.checkConnection(m_session, m_manager);
+		m_system.sendKinematics(TROOPER_KINEMATICS_PDU, m_session, m_manager.Participants[m_index]);			
+		m_system.sendKinematics(BULLET_KINEMATICS_PDU, m_session, m_manager.Participants[m_index].ammo);
+		m_system.sendEvent(m_session, m_manager);
 		/* code */
 		SceneBegin();
+		// Our drawings
 		curr_level.draw();
-		m_system.showMyInfo(m_manager.participants[m_index]); 
-		m_system.drawResource(m_res, m_manager.participants[m_index]);
+		m_system.showMyInfo(m_manager); 
+		m_system.drawResource(m_res, m_manager);
 		m_system.showHelp();
 
 		var j = 0;
 		for (var i = 0; i < MAX_NUM_PLAYERS; ++i) {
-			/* Just the troopers with id bigger than 0 */
-			// if (m_manager.participants[i].tagID.number > 0) {
 			if (m_manager.ToDrawOrNotToDraw(i)) {
-				/* COMPULSARY SYSTEMS FOR MYSELF*/
-				m_system.updateTrooper(m_manager.participants[i]);
-				// Our drawings
-				m_system.drawTrooper(m_manager.participants[i], m_manager.participants[m_index]);
+				m_system.updateTrooper(m_manager, i);
+				m_system.drawTrooper(m_manager, i);
 			}
 			if (m_manager.participants[i].tagID.number > 0) {
-				m_system.showDistanceTable(j, m_manager.participants[i]);
+				m_system.showDistanceTable(j, m_manager, i);
 				j++;
 			}
 		}
@@ -208,6 +206,7 @@ function OnTimer()
 		/* Received who won */
 		if (recvData[0] == WINNER_PDU) {
 			m_manager.participants[m_index].winner = recvData[2];
+			m_manager.participants[m_index].closeTCP = true;
 		}
 
 		/* Server says there's a new guy in town */

@@ -19,26 +19,27 @@ class System {
 	var audioFX;
 	var TD_manager;
 	/* Render actions */
-	drawTrooper(trooper, me);
-	updateTrooper(trooper);
-	showDistanceTable(j, obj);
-	showMyInfo(myAlias);
+	drawTrooper(mangr, i);
+	updateTrooper(mangr, i);
+	showDistanceTable(j, mangr, i);
+	showMyInfo(mangr);
 	drawResource(res, me);
 
 	/* Physics */
-	computeDistances(troopers, index, c_pos);
-	updateBullet(trooper, id, level);
+	computeDistances(mangr, cure_pos);
+	updateBullet(mangr, level);
 
 	/* Human interaction */
-	MoveTrooper(trooper, level);
-	pointOfView(obj);
-	selectWeapon(obj);
-	reload(me);
-	updateHealth(m_sess, me);
+	MoveTrooper(mangr, level);
+	pointOfView(mangr);
+	selectWeapon(mangr);
+	reload(mangr);
+	updateHealth(mangr);
 	showHelp();
-	shoot(trooper);
+	shoot(mangr);
 
 	/* Network */
+	checkConnection(sess, mangr);
 	sendKinematics(kinematics_owner, m_ses, obj);
 	sendEvent(m_ses, obj);
 };
@@ -54,18 +55,24 @@ function system::showHelp() {
 		ConsolePlotHelp();
 }
 
-function System::reload(trooper) {
-	if(KeyPressed("r") && trooper.ammo.readyToReload && trooper.life.life > 0) {
-		trooper.ammo.reload();
-		trooper.ammo.readyToReload = false;
+function System::reload(mangr) {
+	var trooper = mangr.Participants[mangr.m_index];
+	var ammo = trooper.ammo;
+
+	if(KeyPressed("r") && ammo.readyToReload && trooper.life.life > 0) {
+		ammo.reload();
+		ammo.readyToReload = false;
 	}
 }
 
-function System::updateHealth(m_sess, trooper) {
+function System::updateHealth(mangr) {
 	static var prevTime = GetTime();
 	var currTime = GetTime();
+	var trooper = mangr.Participants[mangr.m_index];
+
 	if (trooper.life.life <= 0) {
-		m_sess.closeTCP();
+		trooper.closeTCP = true;
+
 	} else {
 		if (currTime - prevTime > 2000) {
 			trooper.life.life--;
@@ -85,9 +92,10 @@ function System::updateHealth(m_sess, trooper) {
 
 }
 
-function System::drawResource(res, me) {
+function System::drawResource(res, mangr) {
 	// The resources are Ammunition Box and the First Aid Kit 
 	// The resources are only Draw when Myself is close to one of them.
+	var me = mangr.Participants[mangr.m_index];
 	var dst;													// Distance from Myself to the Any resource.
 	for (var i = 0; i < res.length; i++) {						// Iterate over all resources.
 		dst = modulus(res.res[i].pos - me.m_kinematics.pos);	// Compute Distances.
@@ -117,30 +125,35 @@ function System::drawResource(res, me) {
 	}
 }
 
-function System::shoot(trooper) {
+function System::shoot(mangr) {
 	// In order to shoot the player has to click on the left Button of the mouse 
 	// But also the last bullet/rocket had to be done, and the trooper's bag has to
 	// have at least one bullet in whatever gun the trooper is carrying right now
+	var trooper = mangr.Participants[mangr.m_index];
+	var t_Kine = trooper.m_kinematics;
+	var ammo = trooper.ammo;
+	var a_Kine = ammo.m_kinematics;
+
 	if(Mouse.ButtonL 
-		&& !trooper.ammo.alive
-		&& trooper.ammo.bag() != 0 
+		&& !ammo.alive
+		&& ammo.bag() != 0 
 		&& trooper.life.life > 0
-		&& trooper.ammo.charging == 0) {	// When Left Mouse Button is clicked and the 
+		&& ammo.charging == 0) {	// When Left Mouse Button is clicked and the 
 		/* Computing the Weapong Direction in order to execute the trajectory of the wweapon */
-		trooper.ammo.m_kinematics.pos = trooper.m_kinematics.pos;
-		trooper.ammo.alive = true;
-		trooper.ammo.fire = true;
-		trooper.ammo.charging = 50;
+		a_Kine.pos = t_Kine.pos;
+		ammo.alive = true;
+		ammo.fire = true;
+		ammo.charging = 50;
 		/* Given the the bullet/rocket is not coming from the center of the soldier but from the canon of the weapon, 
 		the right position has to be set*/
-		trooper.ammo.m_kinematics.pos[0] += -trooper.m_kinematics.orientation[2] * 0.2;
-		trooper.ammo.m_kinematics.pos[2] += trooper.m_kinematics.orientation[0] * 0.2;
-		trooper.ammo.m_kinematics.pos[1] += 1.3;
+		a_Kine.pos[0] += -t_Kine.orientation[2] * 0.2;
+		a_Kine.pos[2] += t_Kine.orientation[0] * 0.2;
+		a_Kine.pos[1] += 1.3;
 
-		trooper.ammo.m_kinematics.angle = trooper.m_kinematics.angle * PI / 180.0;
-		trooper.ammo.m_kinematics.orientation = trooper.m_kinematics.orientation;
+		a_Kine.angle = t_Kine.angle * PI / 180.0;
+		a_Kine.orientation = t_Kine.orientation;
 		/* Decrease the number of bullets of whatever gun the trooper is carrying */
-		trooper.ammo.decrease();
+		ammo.decrease();
 	}
 
 }
@@ -161,31 +174,43 @@ function checkBulletHit(troopers, id, pos) {
 	return false;
 }
 
-function System::updateBullet(troopers, id, level) {
+function System::updateBullet(mangr, level) {
 	// Updates bullet position and detects collision with walls or
 	// enemies
-	var me = troopers[id];
-	me.ammo.m_kinematics.send = false;
-	if(me.ammo.alive) {
-		var tmpPos = me.ammo.nextPosition();	// gets possible next position
+	var troopers = mangr.Participants;
+	var id = mangr.m_index;
+	var m_ammo = mangr.Participants[id].ammo;
+
+	m_ammo.m_kinematics.send = false;
+	if(m_ammo.alive) {
+		var tmpPos = m_ammo.nextPosition();	// gets possible next position
 		var wall = level.wallCollision(tmpPos);	// detects if there's a wall collision
 		var coll = checkBulletHit(troopers, id, tmpPos);	// detects if there's with the potential position
 
 		if (wall || coll)	// Either a collision against wall or enemy, 
-			me.ammo.alive = false;	// the life is clean
+			m_ammo.alive = false;	// the life is clean
 		else 
-			me.ammo.m_kinematics.pos = tmpPos;	// if no collision, the bullet keeps going  
+			m_ammo.m_kinematics.pos = tmpPos;	// if no collision, the bullet keeps going  
 
-		if (!me.ammo.alive) me.ammo.ended = true;
-		me.ammo.m_kinematics.send = true;
+		if (!m_ammo.alive) m_ammo.ended = true;
+		m_ammo.m_kinematics.send = true;
 	}
-	if (me.ammo.charging > 0) 
-		me.ammo.charging--;
+	if (m_ammo.charging > 0) 
+		m_ammo.charging--;
 }
 
+function System::checkConnection(sess, mangr) {
+	var trooper = mangr.Participants[mangr.m_index];
+	if (trooper.closeTCP) {
+		sess.closeTCP();
+		mangr.rmThemAllButMe();
+	}
+}
 
-function System::sendEvent(m_ses, trooper) {
+function System::sendEvent(m_ses, mangr) {
 	/* Send weapon switch */
+	var trooper = mangr.Participants[mangr.m_index];
+
 	if(trooper.weaponSwitch) {	// sends if weapon was switch
 		m_ses.sendEvent(WEAPON_SWITCH_PDU);
 		trooper.weaponSwitch = false;
@@ -213,7 +238,8 @@ function System::sendEvent(m_ses, trooper) {
 	}
 }
 
-function System::showMyInfo(trooper) {
+function System::showMyInfo(mangr) {
+	var trooper = mangr.Participants[mangr.m_index];
 	// My Name
 	ConsoleText(0.43, 0.95, "Welcome Back " + trooper.tagID.name);
 	// My health
@@ -244,15 +270,19 @@ function System::sendKinematics(kinematics_owner, m_ses, obj) {
 	}
 }
 
-function System::showDistanceTable(j, obj) {
-	if (obj.life.dstToCure > 0) 
-		ConsoleText(0.05, 0.9 - 0.03*j, obj.tagID.name + "'s away from Cure: " + str(floor(obj.life.dstToCure)));
+function System::showDistanceTable(j, mangr, i) {
+	var trooper = mangr.Participants[i];
+
+	if (trooper.life.dstToCure > 0) 
+		ConsoleText(0.05, 0.9 - 0.03*j, trooper.tagID.name + "'s away from Cure: " + str(floor(trooper.life.dstToCure)));
 	else 
-		ConsoleText(0.05, 0.9 - 0.03*j, obj.tagID.name + "'s away from Cure: Unknown");
+		ConsoleText(0.05, 0.9 - 0.03*j, trooper.tagID.name + "'s away from Cure: Unknown");
 }		
 
-function System::selectWeapon(trooper) {
+function System::selectWeapon(mangr) {
 	static var pressed = false;
+	var trooper = mangr.Participants[mangr.m_index];
+
 	var pressed2 = KeyPressed("f"); 
 
 	if((pressed == false) && (pressed2 == true)) {
@@ -262,7 +292,10 @@ function System::selectWeapon(trooper) {
 	pressed = pressed2;
 }
 
-function System::drawTrooper(trooper, me) {
+function System::drawTrooper(mangr, i) {
+	var me = mangr.Participants[mangr.m_index];
+	var trooper = mangr.Participants[i];
+
 	TD_manager.setWeapon(trooper.ammo.type);
 
 	TD_manager.setPosition(trooper.m_kinematics.pos, trooper.m_kinematics.angle);
@@ -286,56 +319,59 @@ function System::drawTrooper(trooper, me) {
 	}
 }
 
-function System::MoveTrooper(trooper, level) {
+function System::MoveTrooper(mangr, level) {
+	var trooper = mangr.Participants[mangr.m_index];
 	var prev_velocity = trooper.m_kinematics.vel;
-	trooper.m_kinematics.vel = 0;
-	trooper.m_kinematics.send = false;
+	var kine = trooper.m_kinematics;
+
+	kine.vel = 0;
+	kine.send = false;
 
 	if (KeyPressed("w")) {
-		trooper.m_kinematics.vel = TROOPER_STEP_VELOCITY;
+		kine.vel = TROOPER_STEP_VELOCITY;
 		audioFX.playEncouraging();	// This will be played only once, at the first step
-		trooper.m_kinematics.send = true;
+		kine.send = true;
 	}
 	else if (KeyPressed("s")) {
-		trooper.m_kinematics.vel = -TROOPER_STEP_VELOCITY;
-		trooper.m_kinematics.send = true;
+		kine.vel = -TROOPER_STEP_VELOCITY;
+		kine.send = true;
 	}
 
 	if (KeyPressed("d")) {
-		trooper.m_kinematics.angle -= TROOPER_STEP_ANGLE;
-		trooper.m_kinematics.send = true;
+		kine.angle -= TROOPER_STEP_ANGLE;
+		kine.send = true;
 	}
     else if(KeyPressed("a")) {
-        trooper.m_kinematics.angle += TROOPER_STEP_ANGLE;
-		trooper.m_kinematics.send = true;
+        kine.angle += TROOPER_STEP_ANGLE;
+		kine.send = true;
     }
-	trooper.m_kinematics.angle = trooper.m_kinematics.angle % 360;
+	kine.angle = kine.angle % 360;
     
     /* Jump, only if not already jumping*/
-	if(KeyPressed(VK_SPACE) && !trooper.m_kinematics.is_jumping) {
-		trooper.m_kinematics.is_jumping = true;
-		trooper.m_kinematics.just_jumped = true;			// Need this to play the jump sound
-		trooper.m_kinematics.vertical_velocity = 4.5;
+	if(KeyPressed(VK_SPACE) && !kine.is_jumping) {
+		kine.is_jumping = true;
+		kine.just_jumped = true;			// Need this to play the jump sound
+		kine.vertical_velocity = 4.5;
 	}
 	
 	var controlPoints = 12;
 	var boundPoints = trooper.getCircPoints(controlPoints);
 
     /* If player is jumping, update jump dynamics*/
-    if(trooper.m_kinematics.is_jumping){
-    	trooper.m_kinematics.vel = prev_velocity;
-    	var new_y = trooper.m_kinematics.pos[1] + trooper.m_kinematics.vertical_velocity * SYS_DELTA_T;
-		trooper.m_kinematics.vertical_velocity -= SYS_GRAVITY * SYS_DELTA_T;
+    if(kine.is_jumping){
+    	kine.vel = prev_velocity;
+    	var new_y = kine.pos[1] + kine.vertical_velocity * SYS_DELTA_T;
+		kine.vertical_velocity -= SYS_GRAVITY * SYS_DELTA_T;
 		
-		var floor_distance = level.floorDistance([trooper.m_kinematics.pos[0], new_y, trooper.m_kinematics.pos[2]]);
+		var floor_distance = level.floorDistance([kine.pos[0], new_y, kine.pos[2]]);
 
 		if (floor_distance <= 0) {						// if the player has landed on the floor / on a wall
-			trooper.m_kinematics.is_jumping = false;
+			kine.is_jumping = false;
 			new_y = new_y - floor_distance;
 		}
 		
-		trooper.m_kinematics.pos[1] = new_y;
-		trooper.m_kinematics.send = true;
+		kine.pos[1] = new_y;
+		kine.send = true;
     }
     else {	 		// Check whether the player is falling off
     	var floor_distance = Array(len(boundPoints));
@@ -350,8 +386,8 @@ function System::MoveTrooper(trooper, level) {
     	
     	if (!isOnTheFloor) {					// The player is falling, e.g. it steps away from a wall -> it falls on the ground, but doesn't jump
     		
-    		trooper.m_kinematics.vertical_velocity -= SYS_GRAVITY * SYS_DELTA_T;
-    		var delta_fall = trooper.m_kinematics.vertical_velocity * SYS_DELTA_T;
+    		kine.vertical_velocity -= SYS_GRAVITY * SYS_DELTA_T;
+    		var delta_fall = kine.vertical_velocity * SYS_DELTA_T;
     		
     		/* Point with max distance from the floor */
     		var idx_max = 0;
@@ -361,25 +397,25 @@ function System::MoveTrooper(trooper, level) {
     			
     			
     		if(abs(delta_fall) > floor_distance[idx_max] && floor_distance[idx_max] > 0)
-				trooper.m_kinematics.pos[1] -= floor_distance[idx_max];
+				kine.pos[1] -= floor_distance[idx_max];
 			else
-				trooper.m_kinematics.pos[1] += delta_fall;
+				kine.pos[1] += delta_fall;
 		}
 		
 		else {										// If player is not falling, reset the vertical velocity to 0
-			trooper.m_kinematics.vertical_velocity = 0;
+			kine.vertical_velocity = 0;
 		}
     }
-    if (trooper.m_kinematics.vel != prev_velocity)
-    	trooper.m_kinematics.send = true;
+    if (kine.vel != prev_velocity)
+    	kine.send = true;
 
     var pos = Array(3);		// contains the next candidate position
 
-    var angle_rad = trooper.m_kinematics.angle / 180.0 * PI;
+    var angle_rad = kine.angle / 180.0 * PI;
     var orientation = [sin(angle_rad), 0.0, cos(angle_rad)];
 
-    pos = trooper.m_kinematics.pos + trooper.m_kinematics.vel * orientation;
-    trooper.m_kinematics.orientation = orientation;
+    pos = kine.pos + kine.vel * orientation;
+    kine.orientation = orientation;
 
 	var left_x = Array(controlPoints / 2 - 1);
 	var right_x = Array(controlPoints / 2 - 1);
@@ -411,8 +447,8 @@ function System::MoveTrooper(trooper, level) {
     	bottom_collision = bottom_collision || level.wallCollision(bottom_z[i]);
     }
     
-    var angle = ( trooper.m_kinematics.angle + 360 );
-	if(trooper.m_kinematics.vel < 0)		//angle the trooper looks at is the opposite wrt direction of movement
+    var angle = ( kine.angle + 360 );
+	if(kine.vel < 0)		//angle the trooper looks at is the opposite wrt direction of movement
 		angle += 180;
 	angle = angle % 360;
 	
@@ -420,66 +456,71 @@ function System::MoveTrooper(trooper, level) {
 		&& ( (!right_collision && !left_collision)			//No collision over x
 		|| ( right_collision && angle <= 180 )				//Collision on the right, but the player is moving left
 		|| ( left_collision && angle >= 180 ) ) )			//Collision on the left, but the player is moving right
-    		trooper.m_kinematics.pos[0] = pos[0];			// update x-component
+    		kine.pos[0] = pos[0];			// update x-component
     
     if( !(up_collision && bottom_collision) 								//Next position is not entirely in a wall
     	&& ( (!up_collision && !bottom_collision)							//No collision over z
     	|| ( up_collision && ( angle >= 90 && angle <= 270 ) )				//Collision on the top, but player is moving down
     	|| ( bottom_collision && ( angle <= 90 || angle >= 270 ) ) ) )		//Collision on the bottom, but player is moving up
-    		trooper.m_kinematics.pos[2] = pos[2];							// update z-component
+    		kine.pos[2] = pos[2];							// update z-component
 	
 }
 
-function System::updateTrooper(trooper) {
+function System::updateTrooper(mangr, i) {
+	var trooper = mangr.Participants[i];
 	if (trooper.m_kinematics.vel != 0 && !trooper.m_kinematics.is_jumping) {
 		trooper.frame += 1;
 		trooper.frame = trooper.frame % (END_WALK_SWAT - START_WALK_SWAT);
 	}
 }
 
-function System::pointOfView(obj) {
- 
+function System::pointOfView(mangr) {
+ 	var cam = mangr.Participants[mangr.m_index].cam;
+ 	var kine = mangr.Participants[mangr.m_index].m_kinematics;
+
 	if (keyboard() == "v") {
-		obj.cam.view = !obj.cam.view;
-		obj.cam.cam.Free();					// it frees from setTarget;
+		cam.view = !cam.view;
+		cam.cam.Free();					// it frees from setTarget;
 	}
 
 
 	/* 1st Person */
-	if (obj.cam.view) {	
-		obj.cam.pos = obj.m_kinematics.pos + [0, 1.3, 0];				//Camera position = player position with a height offset from the ground
-		obj.cam.angle = obj.m_kinematics.angle + 180.0;
-		obj.cam.angle = obj.cam.angle % 360;			
-		obj.cam.cam.setRotation(obj.cam.angle, [0,-1,0]);				//Rotate the camera accordingly to the player rotation
+	if (cam.view) {	
+		cam.pos = kine.pos + [0, 1.3, 0];				//Camera position = player position with a height offset from the ground
+		cam.angle = kine.angle + 180.0;
+		cam.angle = cam.angle % 360;			
+		cam.cam.setRotation(cam.angle, [0,-1,0]);				//Rotate the camera accordingly to the player rotation
 	}
 	/* 3rd Person */
 	else {
-		if(keyPressed(VK_UP) && obj.cam.offset > MIN_CAM_OFFSET)		//Getting closer to the trooper
-			obj.cam.offset -= 0.1;
+		if(keyPressed(VK_UP) && cam.offset > MIN_CAM_OFFSET)		//Getting closer to the trooper
+			cam.offset -= 0.1;
 			
-		if(keyPressed(VK_DOWN) && obj.cam.offset < MAX_CAM_OFFSET)		//Distantiating from the trooper
-			obj.cam.offset += 0.1;
+		if(keyPressed(VK_DOWN) && cam.offset < MAX_CAM_OFFSET)		//Distantiating from the trooper
+			cam.offset += 0.1;
 		
-		obj.cam.pos[0] = obj.m_kinematics.pos[0] - obj.cam.offset * sin(obj.m_kinematics.angle * PI / 180.0);
-		obj.cam.pos[1] = obj.m_kinematics.pos[1] + 2;
-		obj.cam.pos[2] = obj.m_kinematics.pos[2] - obj.cam.offset * cos(obj.m_kinematics.angle * PI / 180.0);
-		obj.cam.cam.setTarget(obj.m_kinematics.pos + [0, 1.6, 0]);
+		cam.pos[0] = kine.pos[0] - cam.offset * sin(kine.angle * PI / 180.0);
+		cam.pos[1] = kine.pos[1] + 2;
+		cam.pos[2] = kine.pos[2] - cam.offset * cos(kine.angle * PI / 180.0);
+		cam.cam.setTarget(kine.pos + [0, 1.6, 0]);
 	}
-	obj.cam.cam.setPosition(obj.cam.pos);
+	cam.cam.setPosition(cam.pos);
 }
 
-function System::computeDistances(troopers, index, c_pos) {
-	var length = len(troopers);
-	var m_pos = troopers[index].m_kinematics.pos;
+function System::computeDistances(mangr, cure_pos) {
+	var troopers = mangr.Participants;
+	var m_index = mangr.m_index;
+	var m_pos = troopers[m_index].m_kinematics.pos;
 	var d;
-	for (var i = 0; i < length; ++i) {
-		if ((i != index) && (troopers[i].tagID.number > 0)) {
+
+	for (var i = 0; i < mangr.total; ++i) {
+		if ((i != m_index) && (troopers[i].tagID.number > 0)) {
 			d = modulus(troopers[i].m_kinematics.pos - m_pos);
 			if (d < 30.0) 
 				troopers[i].closeEnoughToBeDrawn = true;
 			else 
 				troopers[i].closeEnoughToBeDrawn = false;
-			troopers[i].life.dstToCure = modulus(troopers[i].m_kinematics.pos - c_pos);
+			troopers[i].life.dstToCure = modulus(troopers[i].m_kinematics.pos - cure_pos);
 		}
 	}	
 }
