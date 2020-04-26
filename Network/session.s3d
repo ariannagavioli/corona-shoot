@@ -1,6 +1,5 @@
 #include "network.s3d"
 #include "../System/System.s3d"
-// #include "../Participants/participants.s3d"
 
 class Session : Network {
 	var numPlayers;
@@ -39,20 +38,16 @@ function Session::sendKinematics(kinematics_owner, xyzvel) {
 function Session::signUp(success) {
 	// Wait for an ID from server
 	force_receiveTCP(&dataRcv);
-	// TODO: server report couldn connect
+	
 	m_id = dataRcv[2];
-	// TODO: if (m_id != SERVER_FULL) {
-		m_pdu = PDUClass(m_id);		// creates an PDU object
+	
+	m_pdu = PDUClass(m_id);		// creates an PDU object
 
-		// Ask for a name 
-		askServerFor(NAME_ME_PDU);
-		// Wait for a name 
-		force_receiveTCP(&m_badass_name);
-		success = true;
-	// TODO: } else {
-		// TODO: success = false;
-	// TODO: }
-
+	// Ask for a name 
+	askServerFor(NAME_ME_PDU);
+	// Wait for a name 
+	force_receiveTCP(&m_badass_name);
+	success = true;
 }
 
 
