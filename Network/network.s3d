@@ -20,7 +20,6 @@
 
 class PDUClass {
 	var msgPosition;	// PDU to send position
-	var msgScore;		// PDU to send score
 	var msgBullet;		// PDU to send bullets
 	var msgInjuried;	// PDU to send who was injuried
 	var msgWinner;		// PDU to send the winner
@@ -52,7 +51,7 @@ function PDUClass::kinematics(pdu_type, pos, vel, angle) {
 	msgPosition[3] = pos[1];
 	msgPosition[4] = pos[2];
 	msgPosition[5] = vel;
-	msgPosition[6] = 0;
+	msgPosition[6] = 0;		// for future vertical velocity
 	msgPosition[7] = angle;
 }
 
@@ -71,10 +70,6 @@ function PDUClass::PDUClass(id) {
 	msgEvent[0] = WEAPON_SWITCH_PDU;
 	msgEvent[1] = id;
 	msgEvent[2] = 1;
-	// Score PDU
-	// PDU_SCORE = vector(num_players);
-	// PDU_SCORE[0] = PDU_SCORE;
-	// PDU_SCORE[1] = id;
 
 	// Bullet PDU
 	// PDU_BULLET = vector(7);
