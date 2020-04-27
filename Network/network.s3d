@@ -20,7 +20,6 @@
 
 class PDUClass {
 	var msgPosition;	// PDU to send position
-	var msgBullet;		// PDU to send bullets
 	var msgInjuried;	// PDU to send who was injuried
 	var msgWinner;		// PDU to send the winner
 	var msgEvent;		// PDU to send events 
@@ -70,10 +69,6 @@ function PDUClass::PDUClass(id) {
 	msgEvent[0] = WEAPON_SWITCH_PDU;
 	msgEvent[1] = id;
 	msgEvent[2] = 1;
-
-	// Bullet PDU
-	// PDU_BULLET = vector(7);
-	// PDU_BULLET[0] = PDU_BULLET
 
 	// Injuried PDU
 	msgInjuried = vector(4);
