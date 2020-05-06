@@ -17,19 +17,8 @@ SET SCENE_FAR  = 1000;
 /* Camera globals */
 var CamPos = [0.0, 5.0, 30.0]; 	// camera position
 
-/* Light globals */
-var Light0;
-//var PosL = [0.0, 10.0, 10.0];	// default light position
-
-
-/* Function declarations */
-function CameraMoveMouse();
-function DrawGrid(col, size);
-
 /* GLOBAL VARIABLES */
-var curr_player;
 var curr_level;
-var ammoBox;
 // Network
 #define SERVER_IP 	"34.67.36.159" 	// Google VM
 // #define SERVER_IP 	"192.168.43.100"	// Raspberry Pi
@@ -238,43 +227,4 @@ function OnExit()
 {
 	// TODO: put your cleanup code here
 	m_session.closeTCP();
-}
-
-
-
-// Camera manager (using mouse)
-function CameraMoveMouse()
-{	
-
-	CameraMoveMouse_MBL_LC();
-
-}
-
-
-
-function DrawGrid(col, size)
-{
-	/* let's not mess up current OpenGL status */
-	glPushAttrib(GL_LIGHTING_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-	
-	glLineWidth(1);
-	glDisable(GL_LIGHTING);
-	glColor(col);
-	var max = size / 2.0;
-	var min = -max;	
-	var step = size / 10.0;
-	
-	glBegin(GL_LINES);
-		for (var i = min; i <= max; i += step)
-		{
-			glVertex(i, 0, max);
-			glVertex(i, 0, min);
-			
-			glVertex(max, 0, i);
-			glVertex(min, 0, i);
-		}
-	glEnd();
-	
-	/* polite restoration of previous OpenGL status */
-	glPopAttrib();
 }

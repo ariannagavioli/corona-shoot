@@ -22,7 +22,6 @@ class Myself { // Me
 	var shot;
 	var boundRay;
 	var localBB;
-	var boundPoints;
 	var winner;
 	var closeEnoughToBeDrawn;
 	var closeTCP;
@@ -30,7 +29,6 @@ class Myself { // Me
 	setPosition(pos, angle);
 	getBoundingRay();
 	getCircPoints(quantity);
-	getBoundPoints();
 	setBoundingBox(boundingBox);
 };
 
@@ -47,12 +45,9 @@ function Myself::Myself() {
 	closeEnoughToBeDrawn = true;
 	closeTCP = false;
 	
-	boundPoints = Array(4);			//Bounding pointss is composed by 4 3-d points
 	LocalBB = Array(4);				//Bounding pointss is composed by 4 3-d points
-	for(var i = 0; i < 4; i++) {
-		boundPoints[i] = Array(3);
+	for(var i = 0; i < 4; i++)
 		LocalBB[i] = Array(3);
-	}
 
 
 }
@@ -83,25 +78,6 @@ function Myself::getCircPoints(quantity) {
 	return circPoints;
 }
 
-function MySelf::getBoundPoints() {
-	/* Compute the positions of the bounding box points wrt global reference frame
-	 *  -> rototranslation, based on position and rotation of the player
-	 * x = pos.x + x' * cos(a) - z' * sen(a)
-	 * z = pos.z + x' * sen(a) + z' * cos(a)
-	 * where x' and z' are the point coordinates in the local reference frame
-	 */
-	
-	var angle = - m_kinematics.angle * PI / 180.0;
-	
-	for(var i = 0; i < len(boundPoints); i++){
-		boundPoints[i][0] = m_kinematics.pos[0] + LocalBB[i][0] * cos(angle) - LocalBB[i][2] * sin(angle);
-		boundPoints[i][1] = m_kinematics.pos[1];
-		boundPoints[i][2] = m_kinematics.pos[2] + LocalBB[i][0] * sin(angle) + LocalBB[i][2] * cos(angle);
-	}
-	
-	return boundPoints;
-}
-
 function Myself::setBoundingBox(boundingBox) {
 	// var boundingBox;
 	// boundingBox = drawable.body.lowerBody.mesh.getBoundingBox();
@@ -126,9 +102,6 @@ function Myself::setBoundingBox(boundingBox) {
 	}
 	
 	boundRay = sqrt(max_x * max_x + max_z * max_z);
-	
-	for(var i = 0; i < len(LocalBB); i++)
-		boundPoints[i] = LocalBB[i];
 }
 
 #endif
