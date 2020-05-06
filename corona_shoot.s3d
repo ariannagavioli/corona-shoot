@@ -2,7 +2,6 @@
 #include <Script3d.h>
 #include <Camera.s3d.h>
 #include <./Level/level.s3d>
-#include <./Player/player.s3d>
 #include <./Network/session.s3d>
 #include <./System/System.s3d>
 #include <./Manager/Manager.s3d>
